@@ -17,8 +17,8 @@ Sistema automatizado para realização de backup de configurações de NVRs e C�
 O projeto é dividido em três módulos principais:
 
 1.  `backup_nvr.py`: O núcleo do sistema. Responsável pela comunicação HTTP/ISAPI com os NVRs, criptografia, geração do ZIP e envio do e-mail.
-2.  `servico.py`: O wrapper do Serviço do Windows. Controla o agendamento (loop de tempo) e escuta eventos de requisição de backup manual.
-3.  `bandeja.py`: A interface gráfica de usuário (GUI) discreta. Roda na bandeja do sistema para controle rápido do serviço e visualização de status.
+2.  `servico_backup.py`: O wrapper do Serviço do Windows. Controla o agendamento (loop de tempo) e escuta eventos de requisição de backup manual.
+3.  `tray_backup.py`: A interface gráfica de usuário (GUI) discreta. Roda na bandeja do sistema para controle rápido do serviço e visualização de status.
 
 ## 📋 Pré-requisitos
 
@@ -80,13 +80,13 @@ Contém as configurações de SMTP para envio dos relatórios. (Recomendado usar
 Abra o Prompt de Comando (cmd) ou PowerShell como Administrador, navegue até a pasta do projeto e execute:
 
 ```bash
-python servico.py install
+python servico_backup.py install
 ```
 
 Para iniciar o serviço para que ele comece a rodar em background:
 
 ```bash
-python servico.py start
+python servico_backup.py start
 ```
 
 *(Outros comandos úteis: `stop`, `restart`, `remove`, `update`)*
@@ -95,7 +95,7 @@ python servico.py start
 Para ter o controle visual na barra de tarefas, basta executar o script da bandeja (ou colocá-lo na inicialização do Windows):
 
 ```bash
-pythonw bandeja.py
+pythonw tray_backup.py
 ```
 
 *(Usamos `pythonw` para não abrir a janela preta do console no fundo).* 
@@ -104,14 +104,14 @@ O ícone 🟢 verde aparecerá perto do relógio do Windows. Clicando com o bot�
 
 ## 🕒 Horário do Backup Automático
 
-Por padrão, o horário de execução do backup automático está definido no código-fonte do `servico.py`:
+Por padrão, o horário de execução do backup automático está definido no código-fonte do `servico_backup.py`:
 
 ```python
 HORA_BACKUP = 14
 MINUTO_BACKUP = 48
 ```
 
-Para alterar, modifique estas variáveis no arquivo `servico.py` e reinicie o serviço pelo aplicativo da bandeja.
+Para alterar, modifique estas variáveis no arquivo `servico_backup.py` e reinicie o serviço pelo aplicativo da bandeja.
 
 ## 📝 Logs e Solução de Problemas
 
