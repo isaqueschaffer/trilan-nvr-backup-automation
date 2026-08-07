@@ -1,0 +1,28 @@
+# Configurações com credenciais
+config.json
+config_email.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+logs/
+*.log
+
+# Builds
+build/
+dist/
+
+# Ambiente virtual
+venv/
+.venv/
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.old
+
+# IDE
+.vscode/
