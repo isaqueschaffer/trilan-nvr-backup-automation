@@ -1,81 +1,49 @@
 import os
 import sys
-import time
+import logging
 import traceback
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import win32event
 import win32service
 import win32serviceutil
 import servicemanager
 import win32security
-import win32con
-
 
 # ============================================================
 # CONFIGURAÇÃO
 # ============================================================
-
-DIRETORIO = os.path.dirname(
-    os.path.abspath(sys.executable)
-    if getattr(sys, "frozen", False)
-    else os.path.abspath(__file__)
-)
+DIRETORIO = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 
 HORA_BACKUP = 14
 MINUTO_BACKUP = 48
-
 EVENTO_BACKUP_MANUAL = r"Global\TrilanBackupNVR_RunNow"
 
+# Configuração da Pasta de Logs
+PASTA_LOG = DIRETORIO / "logs"
+PASTA_LOG.mkdir(exist_ok=True)
+ARQUIVO_LOG = PASTA_LOG / "servico.log"
 
-# ============================================================
-# LOG
-# ============================================================
-
-PASTA_LOG = os.path.join(
-    DIRETORIO,
-    "logs"
+logging.basicConfig(
+    filename=ARQUIVO_LOG,
+    level=logging.INFO,
+    format="[%(asctime)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
 )
 
-os.makedirs(
-    PASTA_LOG,
-    exist_ok=True
-)
-
-ARQUIVO_LOG = os.path.join(
-    PASTA_LOG,
-    "servico.log"
-)
-
-
-def escrever_log(mensagem):
-
-    texto = (
-        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-        f"{mensagem}"
-    )
+def log(mensagem, is_error=False):
+    """Grava o log no arquivo de texto e no Visualizador de Eventos do Windows."""
+    if is_error:
+        logging.error(mensagem)
+    else:
+        logging.info(mensagem)
 
     try:
-
-        with open(
-            ARQUIVO_LOG,
-            "a",
-            encoding="utf-8"
-        ) as arquivo:
-
-            arquivo.write(
-                texto + "\n"
-            )
-
-    except Exception:
-        pass
-
-    try:
-
-        servicemanager.LogInfoMsg(
-            texto
-        )
-
+        if is_error:
+            servicemanager.LogErrorMsg(mensagem)
+        else:
+            servicemanager.LogInfoMsg(mensagem)
     except Exception:
         pass
 
@@ -83,225 +51,100 @@ def escrever_log(mensagem):
 # ============================================================
 # SERVIÇO
 # ============================================================
-
-class BackupNVRService(
-    win32serviceutil.ServiceFramework
-):
-
+class BackupNVRService(win32serviceutil.ServiceFramework):
     _svc_name_ = "TrilanBackupNVR"
-
-    _svc_display_name_ = (
-        "Trilan - Backup Automático de NVR"
-    )
-
-    _svc_description_ = (
-        "Executa automaticamente o backup dos NVRs "
-        "configurados e envia o resultado por e-mail."
-    )
+    _svc_display_name_ = "Trilan - Backup Automático de NVR"
+    _svc_description_ = "Executa automaticamente o backup dos NVRs configurados e envia o resultado por e-mail."
 
     def __init__(self, args):
-
         super().__init__(args)
-
-        self.hWaitStop = win32event.CreateEvent(
-            None,
-            0,
-            0,
-            None
-        )
-        security = win32security.SECURITY_ATTRIBUTES()
-
-        security.SECURITY_DESCRIPTOR = (
-            win32security.SECURITY_DESCRIPTOR()
-        )
-
-        security.SECURITY_DESCRIPTOR.SetSecurityDescriptorDacl(
-            1,
-            None,
-            0
-        )
-
-        self.hBackupManual = win32event.CreateEvent(
-            security,
-            0,
-            0,
-            EVENTO_BACKUP_MANUAL
-        )
-
         self.stop_requested = False
-     
+        
+        # Evento para solicitar parada do serviço
+        self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
 
-    # ========================================================
-    # PARAR
-    # ========================================================
+        # Configuração de Segurança (DACL permissivo) para o Evento Global
+        sec_desc = win32security.SECURITY_DESCRIPTOR()
+        sec_desc.SetSecurityDescriptorDacl(1, None, 0)
+        sec_attr = win32security.SECURITY_ATTRIBUTES()
+        sec_attr.SECURITY_DESCRIPTOR = sec_desc
+
+        # Evento para disparo manual via bandeja
+        self.hBackupManual = win32event.CreateEvent(sec_attr, 0, 0, EVENTO_BACKUP_MANUAL)
 
     def SvcStop(self):
-
-        self.ReportServiceStatus(
-            win32service.SERVICE_STOP_PENDING
-        )
-
-        escrever_log(
-            "Solicitação de parada recebida."
-        )
-
+        """Chamado quando o serviço recebe comando de parada (Stop)."""
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        log("Solicitação de parada recebida.")
         self.stop_requested = True
-
-        win32event.SetEvent(
-            self.hWaitStop
-        )
-
-    # ========================================================
-    # INICIAR
-    # ========================================================
+        win32event.SetEvent(self.hWaitStop)
 
     def SvcDoRun(self):
-
-        escrever_log("=" * 60)
-        escrever_log(
-            "SERVIÇO TRILAN BACKUP NVR INICIADO"
-        )
-        escrever_log(
-            f"Diretório: {DIRETORIO}"
-        )
-        escrever_log(
-            f"Horário automático: "
-            f"{HORA_BACKUP:02d}:{MINUTO_BACKUP:02d}"
-        )
-
+        """Chamado quando o serviço é iniciado."""
+        log("=" * 60)
+        log(f"SERVIÇO TRILAN BACKUP NVR INICIADO")
+        log(f"Diretório: {DIRETORIO} | Horário automático: {HORA_BACKUP:02d}:{MINUTO_BACKUP:02d}")
+        
         try:
-
             self.executar_loop()
-
         except Exception:
-
-            escrever_log(
-                "ERRO FATAL NO SERVIÇO:"
-            )
-
-            escrever_log(
-                traceback.format_exc()
-            )
-
-        escrever_log(
-            "SERVIÇO TRILAN BACKUP NVR ENCERRADO"
-        )
-
-    # ========================================================
-    # BACKUP
-    # ========================================================
+            log(f"ERRO FATAL NO SERVIÇO:\n{traceback.format_exc()}", is_error=True)
+            
+        log("SERVIÇO TRILAN BACKUP NVR ENCERRADO")
+        log("=" * 60)
 
     def executar_backup(self, origem):
-
+        """Aciona o script de backup."""
         if self.stop_requested:
             return
 
-        escrever_log("=" * 60)
-
-        escrever_log(
-            f"INICIANDO BACKUP - Origem: {origem}"
-        )
-
+        log(f"\n{'='*60}\nINICIANDO BACKUP - Origem: {origem}\n{'='*60}")
         try:
-
+            # Garante que o módulo backup_nvr seja encontrado na pasta do serviço
+            if str(DIRETORIO) not in sys.path:
+                sys.path.insert(0, str(DIRETORIO))
+            
             import backup_nvr
-
             backup_nvr.main()
-
-            escrever_log(
-                "BACKUP FINALIZADO COM SUCESSO."
-            )
-
+            
+            log("BACKUP FINALIZADO COM SUCESSO.")
         except Exception:
-
-            escrever_log(
-                "ERRO DURANTE O BACKUP:"
-            )
-
-            escrever_log(
-                traceback.format_exc()
-            )
-
-        escrever_log("=" * 60)
-
-    # ========================================================
-    # LOOP
-    # ========================================================
+            log(f"ERRO DURANTE O BACKUP:\n{traceback.format_exc()}", is_error=True)
 
     def executar_loop(self):
-
+        """Loop principal que controla os horários e eventos."""
         while not self.stop_requested:
-
             agora = datetime.now()
-
-            proximo = agora.replace(
-                hour=HORA_BACKUP,
-                minute=MINUTO_BACKUP,
-                second=0,
-                microsecond=0
-            )
-
+            proximo = agora.replace(hour=HORA_BACKUP, minute=MINUTO_BACKUP, second=0, microsecond=0)
+            
+            # Se a hora de hoje já passou, agenda para amanhã
             if proximo <= agora:
+                proximo += timedelta(days=1)
 
-                proximo += timedelta(
-                    days=1
-                )
+            log(f"Próximo backup automático: {proximo.strftime('%d/%m/%Y %H:%M:%S')}")
 
-            escrever_log(
-                "Próximo backup automático: "
-                f"{proximo.strftime('%d/%m/%Y %H:%M:%S')}"
-            )
-
+            # Loop de espera do próximo evento (ou timeout a cada minuto)
             while not self.stop_requested:
-
                 agora = datetime.now()
-
-                segundos = (
-                    proximo - agora
-                ).total_seconds()
+                segundos = (proximo - agora).total_seconds()
 
                 if segundos <= 0:
-
-                    self.executar_backup(
-                        "Agendamento automático"
-                    )
-
+                    self.executar_backup("Agendamento automático")
                     break
 
-                espera_ms = int(
-                    min(segundos, 60) * 1000
-                )
-
-                resultado = (
-                    win32event.WaitForMultipleObjects(
-                        [
-                            self.hWaitStop,
-                            self.hBackupManual
-                        ],
-                        False,
-                        espera_ms
-                    )
-                )
+                # Espera máxima de 60 segundos por ciclo
+                espera_ms = int(min(segundos, 60) * 1000)
+                eventos = [self.hWaitStop, self.hBackupManual]
+                resultado = win32event.WaitForMultipleObjects(eventos, False, espera_ms)
 
                 if resultado == win32event.WAIT_OBJECT_0:
-
-                    return
-
-                if resultado == (
-                    win32event.WAIT_OBJECT_0 + 1
-                ):
-
-                    self.executar_backup(
-                        "Solicitação manual pela bandeja"
-                    )
+                    return  # O evento hWaitStop foi acionado (parar serviço)
+                elif resultado == win32event.WAIT_OBJECT_0 + 1:
+                    self.executar_backup("Solicitação manual pela bandeja")
 
 
 # ============================================================
 # EXECUÇÃO
 # ============================================================
-
 if __name__ == "__main__":
-
-    win32serviceutil.HandleCommandLine(
-        BackupNVRService
-    )
+    win32serviceutil.HandleCommandLine(BackupNVRService)
