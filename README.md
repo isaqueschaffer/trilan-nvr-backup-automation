@@ -27,3 +27,101 @@ O projeto é dividido em três módulos principais:
 
 ```bash
 pip install requests pyzipper pycryptodome pypiwin32 pystray Pillow
+```
+
+## ⚙️ Configuração
+
+Antes de iniciar, você deve criar dois arquivos de configuração JSON no mesmo diretório dos scripts.
+
+### 1. config.json
+Contém as definições do cliente e as credenciais de acesso aos equipamentos.
+
+```json
+{
+    "cliente": "Nome do Cliente",
+    "pasta_backup": "C:\\BKP_NVR",
+    "senha_encriptacao": "SenhaForteParaOZipEAPI123",
+    "nvrs": [
+        {
+            "nome": "NVR_Principal",
+            "ip": "192.168.1.100",
+            "usuario": "admin",
+            "senha": "senha_do_nvr"
+        },
+        {
+            "nome": "NVR_Secundario",
+            "ip": "192.168.1.101",
+            "usuario": "admin",
+            "senha": "senha_do_nvr"
+        }
+    ]
+}
+```
+
+### 2. config_email.json
+Contém as configurações de SMTP para envio dos relatórios. (Recomendado usar Senhas de Aplicativo do Gmail/Outlook).
+
+```json
+{
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "email": "seu.email.envio@gmail.com",
+    "senha_app": "sua_senha_de_aplicativo_aqui",
+    "destinatarios": [
+        "ti@trilan.com.br",
+        "gestor@cliente.com.br"
+    ]
+}
+```
+
+## 🛠️ Instalação e Execução
+
+### Instalando o Serviço do Windows
+Abra o Prompt de Comando (cmd) ou PowerShell como Administrador, navegue até a pasta do projeto e execute:
+
+```bash
+python servico.py install
+```
+
+Para iniciar o serviço para que ele comece a rodar em background:
+
+```bash
+python servico.py start
+```
+
+*(Outros comandos úteis: `stop`, `restart`, `remove`, `update`)*
+
+### Executando o App da Bandeja (System Tray)
+Para ter o controle visual na barra de tarefas, basta executar o script da bandeja (ou colocá-lo na inicialização do Windows):
+
+```bash
+pythonw bandeja.py
+```
+
+*(Usamos `pythonw` para não abrir a janela preta do console no fundo).* 
+
+O ícone 🟢 verde aparecerá perto do relógio do Windows. Clicando com o botão direito, você terá acesso ao menu de controle.
+
+## 🕒 Horário do Backup Automático
+
+Por padrão, o horário de execução do backup automático está definido no código-fonte do `servico.py`:
+
+```python
+HORA_BACKUP = 14
+MINUTO_BACKUP = 48
+```
+
+Para alterar, modifique estas variáveis no arquivo `servico.py` e reinicie o serviço pelo aplicativo da bandeja.
+
+## 📝 Logs e Solução de Problemas
+
+O sistema gera logs detalhados para auditoria e resolução de problemas. Eles ficam localizados na subpasta `logs/` (criada automaticamente).
+
+- `servico.log`: Contém o histórico de inicialização do serviço, status do loop de agendamento e o passo a passo da comunicação com os NVRs (criação de diretórios, tamanho dos arquivos, hash SHA-256 e status do envio do e-mail).
+Você pode abrir este log rapidamente usando a opção “📄 Abrir log” no menu da bandeja do sistema.
+
+## ⚠️ Limitações Conhecidas
+
+- **Tamanho de Anexo de E-mail:** Limite de anexo fixado em 20MB. Caso o ZIP gerado exceda esse tamanho, o sistema enviará o relatório por e-mail indicando sucesso, mas **sem o anexo**, mantendo os arquivos salvos no disco local (`pasta_backup`).
+- **Permissões de Rede:** O PC onde o sistema for instalado precisa de visibilidade de rede (rotas liberadas) para os IPs listados no `config.json` e acesso externo à internet para comunicação SMTP (porta 587 ou 465).
+
