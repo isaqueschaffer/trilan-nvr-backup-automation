@@ -1,6 +1,7 @@
 # Configurações com credenciais
 config.json
 config_email.json
+tray_backup.spec
 
 # Python
 __pycache__/

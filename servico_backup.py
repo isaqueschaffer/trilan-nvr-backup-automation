@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import logging
 import traceback
 from datetime import datetime, timedelta
@@ -14,11 +15,26 @@ import win32security
 # ============================================================
 # CONFIGURAÇÃO
 # ============================================================
-DIRETORIO = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+# ============================================================
+# CONFIGURAÇÃO
+# ============================================================
 
-HORA_BACKUP = 14
-MINUTO_BACKUP = 48
+DIRETORIO = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+ARQUIVO_CONFIG = DIRETORIO / "config.json"
 EVENTO_BACKUP_MANUAL = r"Global\TrilanBackupNVR_RunNow"
+
+# Carregar config
+def carregar_config():
+    try:
+        with open(ARQUIVO_CONFIG, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as erro:
+        logging.error(f"Erro ao carregar config.json: {erro}")
+        return {}
+
+config = carregar_config()
+HORA_BACKUP = config.get("hora_backup", 2)
+MINUTO_BACKUP = config.get("minuto_backup", 0)
 
 # Configuração da Pasta de Logs
 PASTA_LOG = DIRETORIO / "logs"
