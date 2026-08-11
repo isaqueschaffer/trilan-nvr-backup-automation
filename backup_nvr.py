@@ -33,16 +33,24 @@ def data_hoje():
 def configurar_log(pasta):
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    logger.handlers.clear()
     
-    fmt_file = logging.Formatter('[%(asctime)s] %(message)s', '%Y-%m-%d %H:%M:%S')
-    fh = logging.FileHandler(pasta / "backup.log", encoding="utf-8")
-    fh.setFormatter(fmt_file)
+    # Remove APENAS os prints de tela de execuções passadas (evita prints duplicados)
+    for h in logger.handlers[:]:
+        if type(h) is logging.StreamHandler:
+            logger.removeHandler(h)
     
+    # Verifica se o arquivo de log já está aberto (evita abrir duas vezes e dar erro)
+    caminho_log = str(pasta / "backup.log")
+    log_ja_aberto = any(hasattr(h, "baseFilename") and caminho_log in str(h.baseFilename) for h in logger.handlers)
+    
+    if not log_ja_aberto:
+        fmt_file = logging.Formatter('[%(asctime)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+        fh = logging.FileHandler(pasta / "backup.log", encoding="utf-8")
+        fh.setFormatter(fmt_file)
+        logger.addHandler(fh)
+        
     ch = logging.StreamHandler(sys.stdout)
     ch.setFormatter(logging.Formatter('%(message)s'))
-    
-    logger.addHandler(fh)
     logger.addHandler(ch)
 
 def carregar_config(caminho, campos_obrigatorios):
@@ -209,9 +217,19 @@ def main():
         sys.exit("❌ ERRO: Nenhum NVR configurado.")
 
     pasta_data = Path(cfg["pasta_backup"]) / data_hoje()
-    if pasta_data.exists():
-        shutil.rmtree(pasta_data)
     pasta_data.mkdir(parents=True, exist_ok=True)
+
+    # Varredura inteligente: Limpa tudo da pasta antiga EXCETO o backup.log
+    for item in pasta_data.iterdir():
+        try:
+            if item.name == "backup.log":
+                continue
+            if item.is_file():
+                item.unlink()
+            elif item.is_dir():
+                shutil.rmtree(item)
+        except Exception:
+            pass  # Ignora erros silenciosamente se algo mais estiver bloqueado
 
     configurar_log(pasta_data)
 

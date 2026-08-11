@@ -3,6 +3,7 @@ config.json
 config_email.json
 server/.env
 agent/agent.conf
+tray_backup.spec
 
 # Python
 __pycache__/

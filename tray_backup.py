@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import time
 import threading
 import subprocess
@@ -12,11 +13,27 @@ from PIL import Image, ImageDraw
 from pystray import MenuItem as item
 
 # ============================================================
-# CONFIGURAÇÕES
+# CONFIGURAÇÕES (Com proteção para o .EXE)
 # ============================================================
-DIRETORIO = Path(__file__).resolve().parent
+if getattr(sys, 'frozen', False):
+    DIRETORIO = Path(sys.executable).parent
+else:
+    DIRETORIO = Path(__file__).resolve().parent
+
+# Carregar config.json
+ARQUIVO_CONFIG = DIRETORIO / "config.json"
+def carregar_config():
+    try:
+        with open(ARQUIVO_CONFIG, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"pasta_backup": r"C:\BKP_NVR", "cliente": "Desconhecido"}
+
+config = carregar_config()
+
+CLIENTE = config.get("cliente", "Desconhecido")
 SERVICO = "TrilanBackupNVR"
-PASTA_BACKUP = Path(r"C:\BKP_NVR")
+PASTA_BACKUP = Path(config.get("pasta_backup", r"C:\BKP_NVR"))
 ARQUIVO_LOG = DIRETORIO / "logs" / "servico.log"
 
 EVENTO_BACKUP_MANUAL = r"Global\TrilanBackupNVR_RunNow"
@@ -26,53 +43,74 @@ NO_WINDOW = subprocess.CREATE_NO_WINDOW
 # INTERFACE GRÁFICA (ÍCONE)
 # ============================================================
 def criar_icone():
-    """Desenha dinamicamente o ícone do NVR na bandeja do Windows."""
     img = Image.new("RGB", (64, 64), "white")
     d = ImageDraw.Draw(img)
     
-    # Corpo e discos do NVR
     d.rectangle((10, 10, 54, 25), outline="black", width=3)
     d.rectangle((10, 29, 54, 44), outline="black", width=3)
     d.ellipse((16, 15, 21, 20), fill="green")
     d.ellipse((16, 34, 21, 39), fill="green")
     
-    # Seta indicando download/backup
     d.line((28, 48, 28, 58), fill="black", width=3)
     d.line((28, 58, 23, 53), fill="black", width=3)
     d.line((28, 58, 33, 53), fill="black", width=3)
-    
     return img
 
 # ============================================================
 # CONTROLE DO SERVIÇO (SC.EXE)
 # ============================================================
-def cmd_servico(acao):
-    """Executa um comando de serviço (start/stop) de forma invisível."""
+def cmd_servico(acao, icone):
     try:
-        subprocess.run(["sc.exe", acao, SERVICO], creationflags=NO_WINDOW)
+        rodando = servico_esta_rodando()
+        
+        if acao == "start" and rodando:
+            icone.notify("O serviço já está em execução.", "Trilan Backup NVR")
+            return
+        if acao == "stop" and not rodando:
+            icone.notify("O serviço já está parado.", "Trilan Backup NVR")
+            return
+
+        res = subprocess.run(
+            ["sc.exe", acao, SERVICO], 
+            creationflags=NO_WINDOW,
+            capture_output=True,
+            text=True
+        )
+        
+        if res.returncode != 0:
+            icone.notify("Falha de permissão. Execute a bandeja como Administrador.", "Acesso Negado")
+        else:
+            texto_acao = "iniciado" if acao == "start" else "parado"
+            icone.notify(f"Serviço {texto_acao} com sucesso.", "Trilan Backup NVR")
+            
     except Exception as e:
-        print(f"Erro ao executar {acao} no serviço: {e}")
+        icone.notify(f"Erro ao controlar serviço: {e}", "Erro")
 
 def reiniciar_servico(icone, item):
     def _reiniciar():
-        cmd_servico("stop")
+        cmd_servico("stop", icone)
         time.sleep(2)
-        cmd_servico("start")
+        cmd_servico("start", icone)
     threading.Thread(target=_reiniciar, daemon=True).start()
 
 def servico_esta_rodando():
     try:
-        res = subprocess.run(["sc.exe", "query", SERVICO], capture_output=True, text=True, creationflags=NO_WINDOW)
+        res = subprocess.run(
+            ["sc.exe", "query", SERVICO], 
+            capture_output=True, 
+            text=True, 
+            creationflags=NO_WINDOW,
+            stdin=subprocess.DEVNULL
+        )
         return "RUNNING" in res.stdout
     except Exception:
         return False
 
 def monitorar_servico(icone):
-    """Atualiza o texto exibido ao passar o mouse sobre o ícone."""
     while True:
         try:
-            status = "em execução" if servico_esta_rodando() else "PARADO (backup automático não vai rodar)"
-            icone.title = f"Trilan Backup NVR - Serviço {status}"
+            status = "em execução" if servico_esta_rodando() else "PARADO"
+            icone.title = f"Trilan Backup NVR [{CLIENTE}] - {status}"
         except Exception:
             pass
         time.sleep(10)
@@ -88,23 +126,28 @@ def executar_backup_agora(icone, item):
         icone.notify("Backup solicitado ao serviço.", "Trilan Backup NVR")
     except Exception as erro:
         icone.notify("Não foi possível solicitar o backup. O serviço está rodando?", "Trilan Backup NVR")
-        print(f"Erro ao solicitar backup: {erro}")
 
 def abrir_pasta_backup(icone, item):
     try:
         PASTA_BACKUP.mkdir(parents=True, exist_ok=True)
         os.startfile(PASTA_BACKUP)
     except Exception as e:
-        print(f"Erro ao abrir pasta: {e}")
+        icone.notify(f"Erro ao abrir pasta: {e}", "Erro")
 
 def abrir_log(icone, item):
     try:
         ARQUIVO_LOG.parent.mkdir(parents=True, exist_ok=True)
         if not ARQUIVO_LOG.exists():
             ARQUIVO_LOG.touch()
-        subprocess.Popen(["notepad.exe", str(ARQUIVO_LOG)])
+        
+        subprocess.Popen(
+            ["notepad.exe", str(ARQUIVO_LOG)],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
     except Exception as e:
-        print(f"Erro ao abrir log: {e}")
+        icone.notify(f"Erro ao abrir log: {e}", "Erro")
 
 # ============================================================
 # MENU E LOOP PRINCIPAL
@@ -113,8 +156,8 @@ def criar_menu():
     return pystray.Menu(
         item("▶ Executar backup agora", executar_backup_agora),
         pystray.Menu.SEPARATOR,
-        item("▶ Iniciar serviço", lambda i, j: cmd_servico("start")),
-        item("■ Parar serviço", lambda i, j: cmd_servico("stop")),
+        item("▶ Iniciar serviço", lambda i, j: cmd_servico("start", i)),
+        item("■ Parar serviço", lambda i, j: cmd_servico("stop", i)),
         item("↻ Reiniciar serviço", reiniciar_servico),
         pystray.Menu.SEPARATOR,
         item("📁 Abrir pasta de backups", abrir_pasta_backup),
@@ -126,17 +169,11 @@ def criar_menu():
 def main():
     while True:
         try:
-            icone = pystray.Icon("TrilanBackupNVR", criar_icone(), "Trilan Backup NVR", criar_menu())
-            
-            # Inicia o monitor de status em segundo plano
+            icone = pystray.Icon("TrilanBackupNVR", criar_icone(), f"Trilan Backup NVR [{CLIENTE}]", criar_menu())
             threading.Thread(target=monitorar_servico, args=(icone,), daemon=True).start()
-            
-            # Bloqueia a execução mantendo o ícone ativo
             icone.run()
-            break  # Só chega aqui se o usuário clicar em "Sair" (icone.stop())
-            
-        except Exception as e:
-            print(f"Bandeja encontrou um erro inesperado e será reiniciada em 5s: {e}")
+            break
+        except Exception:
             time.sleep(5)
 
 if __name__ == "__main__":
