@@ -1,0 +1,10 @@
+﻿[server]
+# URL do servidor Trilan NVR Backup (sem barra no final)
+url = https://hd208ec5kxz.sn.mynetname.net:7001
+
+[auth]
+# ID unico deste cliente (obtido no painel administrativo)
+client_id = COLE_O_CLIENT_ID_AQUI
+
+# Chave de API (obtida no painel administrativo — mantenha em segredo)
+api_key = sk_trilan_COLE_A_API_KEY_AQUI

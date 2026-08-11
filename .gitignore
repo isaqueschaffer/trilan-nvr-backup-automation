@@ -1,6 +1,8 @@
 # Configurações com credenciais
 config.json
 config_email.json
+server/.env
+agent/agent.conf
 
 # Python
 __pycache__/
@@ -14,6 +16,7 @@ logs/
 # Builds
 build/
 dist/
+server/dashboard/dist/
 
 # Ambiente virtual
 venv/
@@ -23,6 +26,10 @@ venv/
 *.tmp
 *.bak
 *.old
+agent/tmp_backup/
 
 # IDE
 .vscode/
+
+# Node
+node_modules/

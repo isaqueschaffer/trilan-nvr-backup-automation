@@ -1,0 +1,67 @@
+﻿version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      - "7001:7001"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - dashboard
+    networks:
+      - trilan_net
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    volumes:
+      - backup_data:/data/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - trilan_net
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - trilan_net
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {POSTGRES_USER:-trilan}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - trilan_net
+
+volumes:
+  pg_data:
+  backup_data:
+
+networks:
+  trilan_net:
+    driver: bridge
