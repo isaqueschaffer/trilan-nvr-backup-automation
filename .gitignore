@@ -1,9 +1,12 @@
 # Configurações com credenciais
 config.json
 config_email.json
+<<<<<<< HEAD
 server/.env
 agent/agent.conf
+=======
 tray_backup.spec
+>>>>>>> 96a599b7984bb7b1ce26203315ce0d344a482b8c
 
 # Python
 __pycache__/
