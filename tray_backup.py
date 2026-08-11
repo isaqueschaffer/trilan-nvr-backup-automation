@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import time
 import threading
 import subprocess
@@ -19,8 +20,20 @@ if getattr(sys, 'frozen', False):
 else:
     DIRETORIO = Path(__file__).resolve().parent
 
+# Carregar config.json
+ARQUIVO_CONFIG = DIRETORIO / "config.json"
+def carregar_config():
+    try:
+        with open(ARQUIVO_CONFIG, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"pasta_backup": r"C:\BKP_NVR", "cliente": "Desconhecido"}
+
+config = carregar_config()
+
+CLIENTE = config.get("cliente", "Desconhecido")
 SERVICO = "TrilanBackupNVR"
-PASTA_BACKUP = Path(r"C:\BKP_NVR")
+PASTA_BACKUP = Path(config.get("pasta_backup", r"C:\BKP_NVR"))
 ARQUIVO_LOG = DIRETORIO / "logs" / "servico.log"
 
 EVENTO_BACKUP_MANUAL = r"Global\TrilanBackupNVR_RunNow"
@@ -50,7 +63,6 @@ def cmd_servico(acao, icone):
     try:
         rodando = servico_esta_rodando()
         
-        # 1. Evita disparar comando (e erro) se o serviço já estiver no estado desejado
         if acao == "start" and rodando:
             icone.notify("O serviço já está em execução.", "Trilan Backup NVR")
             return
@@ -58,7 +70,6 @@ def cmd_servico(acao, icone):
             icone.notify("O serviço já está parado.", "Trilan Backup NVR")
             return
 
-        # 2. Executa o comando (usando capture_output no lugar de DEVNULL para evitar telas)
         res = subprocess.run(
             ["sc.exe", acao, SERVICO], 
             creationflags=NO_WINDOW,
@@ -66,11 +77,9 @@ def cmd_servico(acao, icone):
             text=True
         )
         
-        # 3. Se deu erro agora, é quase certeza que é falta de permissão (Administrador)
         if res.returncode != 0:
             icone.notify("Falha de permissão. Execute a bandeja como Administrador.", "Acesso Negado")
         else:
-            # 4. Mensagem de sucesso para você saber que funcionou
             texto_acao = "iniciado" if acao == "start" else "parado"
             icone.notify(f"Serviço {texto_acao} com sucesso.", "Trilan Backup NVR")
             
@@ -100,8 +109,8 @@ def servico_esta_rodando():
 def monitorar_servico(icone):
     while True:
         try:
-            status = "em execução" if servico_esta_rodando() else "PARADO (backup automático não vai rodar)"
-            icone.title = f"Trilan Backup NVR - Serviço {status}"
+            status = "em execução" if servico_esta_rodando() else "PARADO"
+            icone.title = f"Trilan Backup NVR [{CLIENTE}] - {status}"
         except Exception:
             pass
         time.sleep(10)
@@ -131,7 +140,6 @@ def abrir_log(icone, item):
         if not ARQUIVO_LOG.exists():
             ARQUIVO_LOG.touch()
         
-        # Popen com DEVNULL isola o notepad do executável invisível
         subprocess.Popen(
             ["notepad.exe", str(ARQUIVO_LOG)],
             stdin=subprocess.DEVNULL,
@@ -161,7 +169,7 @@ def criar_menu():
 def main():
     while True:
         try:
-            icone = pystray.Icon("TrilanBackupNVR", criar_icone(), "Trilan Backup NVR", criar_menu())
+            icone = pystray.Icon("TrilanBackupNVR", criar_icone(), f"Trilan Backup NVR [{CLIENTE}]", criar_menu())
             threading.Thread(target=monitorar_servico, args=(icone,), daemon=True).start()
             icone.run()
             break
