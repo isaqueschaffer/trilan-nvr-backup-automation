@@ -1,4 +1,4 @@
-﻿from typing import List
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -42,10 +42,11 @@ def create_client(body: ClientCreate, db: Session = Depends(get_db)):
     db.add(client)
     db.commit()
     db.refresh(client)
-    resp = ClientWithKey.model_validate(client)
-    resp.nvr_count = 0
-    resp.api_key = raw_key  # returned only once
-    return resp
+    
+    # Injeta atributos temporários para o Pydantic v2 ler sem dar erro
+    client.nvr_count = 0
+    client.api_key = raw_key
+    return ClientWithKey.model_validate(client)
 
 
 @router.get("/{client_id}", response_model=ClientResponse, dependencies=[Depends(verify_admin_token)])
@@ -92,7 +93,8 @@ def rotate_api_key(client_id: UUID, db: Session = Depends(get_db)):
     client.api_key_prefix = raw_key[:16]
     db.commit()
     db.refresh(client)
-    resp = ClientWithKey.model_validate(client)
-    resp.nvr_count = len(client.nvrs)
-    resp.api_key = raw_key
-    return resp
+    
+    # Injeta atributos temporários para o Pydantic v2 ler
+    client.nvr_count = len(client.nvrs)
+    client.api_key = raw_key
+    return ClientWithKey.model_validate(client)
