@@ -1,7 +1,9 @@
-﻿import axios from "axios";
+import axios from "axios";
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
 const api = axios.create({
-  baseURL: "/api/v1",
+  baseURL: `${API_BASE}/api/v1`,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -56,7 +58,7 @@ export const deleteNVR = (clientId: string, nvrId: string) =>
 export const fetchBackups = (params?: Record<string, unknown>) =>
   api.get("/backups", { params }).then((r) => r.data);
 export const downloadBackupZip = (backupId: string) =>
-  `/api/v1/backups/${backupId}/download`;
+  `${API_BASE}/api/v1/backups/${backupId}/download`;
 
 // ── Settings ──────────────────────────────────────────────────
 export const fetchSettings = () => api.get("/settings").then((r) => r.data);
