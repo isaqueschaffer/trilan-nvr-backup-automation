@@ -1,11 +1,11 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchClients, createClient, deleteClient } from "../api/client";
 import { Client } from "../api/types";
 import StatusBadge from "../components/StatusBadge";
 import Modal from "../components/Modal";
 import { useToast } from "../components/Toast";
-import { Plus, Trash2, Eye, Copy, Key } from "lucide-react";
+import { Plus, Trash2, Eye, Copy } from "lucide-react";
 
 interface NewClientForm {
   name: string; backup_hour: number; backup_minute: number;

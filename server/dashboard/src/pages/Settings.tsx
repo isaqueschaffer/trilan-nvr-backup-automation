@@ -1,7 +1,7 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchSettings, updateSettings } from "../api/client";
 import { useToast } from "../components/Toast";
-import { Settings as SettingsIcon, Save, Mail, Lock, Database } from "lucide-react";
+import { Save, Mail, Lock, Database } from "lucide-react";
 
 export default function Settings() {
   const [form, setForm] = useState({
