@@ -1,8 +1,8 @@
-﻿from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import func, cast, Date
+from sqlalchemy import func, cast, Date, text
 
 from database import Base, engine, get_db
 from models import Client, Backup
@@ -12,6 +12,13 @@ from routers import auth_router, clients, nvrs, backups, agent, settings_router
 
 # ─── Create tables on startup ──────────────────────────────────────────────
 Base.metadata.create_all(bind=engine)
+
+# Executa migração manual para adicionar a coluna last_seen se não existir
+try:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE clients ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP WITHOUT TIME ZONE;"))
+except Exception as e:
+    print(f"Erro ao adicionar coluna last_seen: {e}")
 
 # ─── App ───────────────────────────────────────────────────────────────────
 app = FastAPI(

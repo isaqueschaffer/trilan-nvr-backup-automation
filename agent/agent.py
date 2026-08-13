@@ -1,4 +1,4 @@
-﻿"""
+"""
 Trilan NVR Backup — Agent Core
 Adapted from backup_nvr.py for client-server architecture.
 
@@ -28,7 +28,7 @@ from Crypto.Util.Padding import pad
 # ─────────────────────────────────────────────────────────────
 # CONSTANTS
 # ─────────────────────────────────────────────────────────────
-DIR_AGENT = Path(__file__).resolve().parent
+DIR_AGENT = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 CONF_FILE = DIR_AGENT / "agent.conf"
 TEMP_DIR = DIR_AGENT / "tmp_backup"
 AES_KEY_HEX = bytes.fromhex("bf8a6df8640f38f3812c19d2aaca7743")  # Hikvision WebSDK key
@@ -42,16 +42,17 @@ TIMEOUT_SERVER = 120
 def setup_logging():
     log_dir = DIR_AGENT / "logs"
     log_dir.mkdir(exist_ok=True)
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    logger.handlers.clear()
-    fmt = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
-    fh = logging.FileHandler(log_dir / "agent.log", encoding="utf-8")
-    fh.setFormatter(fmt)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(logging.Formatter("%(message)s"))
-    logger.addHandler(fh)
-    logger.addHandler(ch)
+    logger = logging.getLogger("agent")
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        fmt = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
+        fh = logging.FileHandler(log_dir / "agent.log", encoding="utf-8")
+        fh.setFormatter(fmt)
+        logger.addHandler(fh)
+        if sys.stdout is not None:
+            ch = logging.StreamHandler(sys.stdout)
+            ch.setFormatter(logging.Formatter("%(message)s"))
+            logger.addHandler(ch)
 
 
 # ─────────────────────────────────────────────────────────────

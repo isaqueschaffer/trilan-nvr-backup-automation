@@ -101,7 +101,14 @@ export default function Clients() {
                       {c.id.slice(0, 8)}...
                     </div>
                   </td>
-                  <td><StatusBadge status={c.active ? c.last_backup_status || "muted" : "ERRO"} /></td>
+                  <td>
+                    <StatusBadge status={
+                      !c.active ? "DESATIVADO" : 
+                      (c.last_seen && new Date().getTime() - new Date(c.last_seen).getTime() < 15 * 60 * 1000) 
+                        ? "ONLINE" 
+                        : "OFFLINE"
+                    } />
+                  </td>
                   <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>{c.nvr_count}</td>
                   <td className="text-secondary">
                     {String(c.backup_hour).padStart(2,"0")}:{String(c.backup_minute).padStart(2,"0")}

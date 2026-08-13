@@ -71,7 +71,7 @@ var
   ConfigFile: String;
   ConfigContent: TArrayOfString;
 begin
-  if CurStep = ssPostInstall then
+  if CurStep = ssInstall then
   begin
     ConfigFile := ExpandConstant('{app}\agent.conf');
     SetArrayLength(ConfigContent, 7);

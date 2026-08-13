@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 from datetime import datetime
 from sqlalchemy import (
     Column, String, Integer, Boolean, DateTime,
@@ -21,6 +21,7 @@ class Client(Base):
     zip_password = Column(Text, nullable=True)  # Fernet-encrypted
     email_to = Column(ARRAY(String), default=[], nullable=False)
     active = Column(Boolean, default=True, nullable=False)
+    last_seen = Column(DateTime, nullable=True)
     last_backup_at = Column(DateTime, nullable=True)
     last_backup_status = Column(String(20), nullable=True)  # OK, PARTIAL, ERROR
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

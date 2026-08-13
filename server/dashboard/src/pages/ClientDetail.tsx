@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchClient, fetchNVRs, createNVR, deleteNVR, updateClient,
@@ -146,8 +146,13 @@ export default function ClientDetail() {
             <span className="detail-value">{fmtDate(client.created_at)}</span>
           </div>
           <div className="detail-item">
-            <span className="detail-label">Ativo</span>
-            <StatusBadge status={client.active ? "OK" : "ERRO"} />
+            <span className="detail-label">Status do Agente</span>
+            <StatusBadge status={
+              !client.active ? "DESATIVADO" : 
+              (client.last_seen && new Date().getTime() - new Date(client.last_seen).getTime() < 15 * 60 * 1000) 
+                ? "ONLINE" 
+                : "OFFLINE"
+            } />
           </div>
         </div>
       </div>

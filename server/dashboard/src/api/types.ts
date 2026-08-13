@@ -1,4 +1,4 @@
-﻿export interface NVR {
+export interface NVR {
   id: string;
   client_id: string;
   name: string;
@@ -14,6 +14,7 @@ export interface Client {
   backup_minute: number;
   email_to: string[];
   active: boolean;
+  last_seen: string | null;
   last_backup_at: string | null;
   last_backup_status: string | null;
   created_at: string;

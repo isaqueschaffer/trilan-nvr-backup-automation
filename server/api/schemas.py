@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 from typing import List, Optional, Any
 from datetime import datetime
 from uuid import UUID
@@ -59,6 +59,7 @@ class ClientUpdate(BaseModel):
 class ClientResponse(ClientBase):
     id: UUID
     api_key_prefix: str
+    last_seen: Optional[datetime] = None
     last_backup_at: Optional[datetime] = None
     last_backup_status: Optional[str] = None
     created_at: datetime

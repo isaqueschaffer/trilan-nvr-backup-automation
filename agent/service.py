@@ -1,4 +1,4 @@
-﻿"""
+"""
 Trilan NVR Backup Agent — Windows Service
 Runs agent.py on a schedule and listens for manual trigger events.
 
@@ -90,13 +90,22 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
         import requests
 
         conf_file = DIRETORIO / "agent.conf"
+        log(f"Lendo configuracoes de: {conf_file}")
+        if not conf_file.exists():
+            log(f"ERRO FATAL: Arquivo de configuracao {conf_file} nao encontrado!", is_error=True)
+            return
+
         cfg = configparser.ConfigParser()
         cfg.read(conf_file)
         server_url = cfg["server"]["url"].rstrip("/")
         client_id = cfg["auth"]["client_id"]
         api_key = cfg["auth"]["api_key"]
 
+        log(f"Servidor configurado: {server_url}")
+        log(f"Client ID: {client_id}")
+
         headers = {"X-Client-ID": client_id, "X-API-Key": api_key}
+        log(f"Testando comunicacao com o servidor: {server_url}/api/v1/agent/config ...")
         try:
             r = requests.get(f"{server_url}/api/v1/agent/config", headers=headers,
                              timeout=30, verify=False)
@@ -104,14 +113,21 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
             server_cfg = r.json()
             hora = int(server_cfg.get("backup_hour", 2))
             minuto = int(server_cfg.get("backup_minute", 0))
+            log("COMUNICACAO BEM SUCEDIDA! Configuracoes do servidor recebidas.")
         except Exception as e:
-            log(f"Aviso: nao foi possivel buscar horario do servidor ({e}). Usando 02:00.", is_error=True)
+            log(f"FALHA na comunicacao com o servidor: {e}", is_error=True)
+            log("Usando horario padrao 02:00 para o proximo backup.")
             hora, minuto = 2, 0
 
-        self._run_loop(hora, minuto)
+        self._run_loop(hora, minuto, server_url, headers)
 
-    def _run_loop(self, hora: int, minuto: int):
+    def _run_loop(self, hora: int, minuto: int, server_url: str, headers: dict):
         import agent as agent_mod
+        import requests
+        import time
+
+        last_ping_time = 0
+
         while not self.stop_requested:
             agora = datetime.now()
             proximo = agora.replace(hour=hora, minute=minuto, second=0, microsecond=0)
@@ -121,6 +137,15 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
 
             while not self.stop_requested:
                 agora = datetime.now()
+                
+                # Envia ping a cada 5 minutos (300 segundos) para manter status "Online"
+                if time.time() - last_ping_time >= 300:
+                    try:
+                        requests.post(f"{server_url}/api/v1/agent/ping", headers=headers, timeout=10, verify=False)
+                        last_ping_time = time.time()
+                    except Exception:
+                        pass # Ignora falha no ping para nao travar o loop
+                
                 segundos = (proximo - agora).total_seconds()
                 if segundos <= 0:
                     self._executar_backup(agent_mod, "scheduled")
@@ -147,4 +172,9 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
 
 
 if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(TrilanAgentService)
+    if len(sys.argv) == 1:
+        servicemanager.Initialize()
+        servicemanager.PrepareToHostSingle(TrilanAgentService)
+        servicemanager.StartServiceCtrlDispatcher()
+    else:
+        win32serviceutil.HandleCommandLine(TrilanAgentService)

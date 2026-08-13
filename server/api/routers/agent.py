@@ -1,4 +1,4 @@
-﻿"""
+"""
 Agent-facing router.
 Windows agent authenticates with X-Client-ID + X-API-Key headers.
 """
@@ -18,7 +18,7 @@ router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 
 
 @router.get("/config", response_model=AgentConfigResponse)
-def get_agent_config(client: Client = Depends(get_current_client)):
+def get_agent_config(client: Client = Depends(get_current_client), db: Session = Depends(get_db)):
     """Return full config needed by the Windows agent."""
     nvrs = [
         AgentNVR(
@@ -30,6 +30,11 @@ def get_agent_config(client: Client = Depends(get_current_client)):
         for nvr in client.nvrs
     ]
     zip_pw = decrypt(client.zip_password) if client.zip_password else None
+    
+    # Update last_seen
+    client.last_seen = datetime.utcnow()
+    db.commit()
+    
     return AgentConfigResponse(
         client_name=client.name,
         backup_hour=client.backup_hour,
@@ -37,6 +42,14 @@ def get_agent_config(client: Client = Depends(get_current_client)):
         zip_password=zip_pw,
         nvrs=nvrs,
     )
+
+
+@router.post("/ping")
+def ping_agent(client: Client = Depends(get_current_client), db: Session = Depends(get_db)):
+    """Agent heartbeat to mark it as online."""
+    client.last_seen = datetime.utcnow()
+    db.commit()
+    return {"status": "ok"}
 
 
 @router.post("/backup/report", response_model=BackupReportResponse, status_code=201)

@@ -1,7 +1,9 @@
-﻿interface Props { status: string | null | undefined; }
+interface Props { status: string | null | undefined; }
 
 const map: Record<string, { cls: string; dot: string; label: string }> = {
   OK:      { cls: "ok",   dot: "ok",   label: "OK" },
+  ONLINE:  { cls: "ok",   dot: "ok",   label: "Online" },
+  OFFLINE: { cls: "muted",dot: "err",  label: "Offline" },
   PARTIAL: { cls: "warn", dot: "warn", label: "Parcial" },
   PARCIAL: { cls: "warn", dot: "warn", label: "Parcial" },
   ERROR:   { cls: "err",  dot: "err",  label: "Erro" },
