@@ -1,8 +1,27 @@
-﻿import { useEffect, useState, useCallback } from "react";
-import { fetchBackups, fetchClients, downloadBackupZip } from "../api/client";
+import { useEffect, useState, useCallback } from "react";
+import { fetchBackups, fetchClients } from "../api/client";
+import api from "../api/client";
 import { Backup, Client, PaginatedBackups } from "../api/types";
 import StatusBadge from "../components/StatusBadge";
 import { Download, Search } from "lucide-react";
+
+async function handleDownload(backupId: string, filename: string) {
+  try {
+    const res = await api.get(`/backups/${backupId}/download`, {
+      responseType: "blob",
+    });
+    const url = URL.createObjectURL(new Blob([res.data], { type: "application/zip" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch {
+    alert("Erro ao baixar o arquivo. Verifique sua sessão e tente novamente.");
+  }
+}
 
 function fmtDate(s: string | null) {
   if (!s) return "—";
@@ -101,10 +120,13 @@ export default function Backups() {
                     <td className="text-secondary text-sm">{b.trigger}</td>
                     <td>
                       {b.zip_filename && (
-                        <a href={downloadBackupZip(b.id)} className="btn-icon" title="Baixar ZIP"
-                           download>
+                        <button
+                          className="btn-icon"
+                          title="Baixar ZIP"
+                          onClick={() => handleDownload(b.id, b.zip_filename!)}
+                        >
                           <Download size={14} />
-                        </a>
+                        </button>
                       )}
                     </td>
                   </tr>
