@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchBackups, fetchClients, downloadBackupZip } from "../api/client";
 import { Backup, Client, PaginatedBackups } from "../api/types";
 import StatusBadge from "../components/StatusBadge";
@@ -22,6 +22,7 @@ export default function Backups() {
   const [page, setPage] = useState(1);
   const [clientFilter, setClientFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,6 +36,26 @@ export default function Backups() {
 
   useEffect(() => { fetchClients().then(setClients); }, []);
   useEffect(() => { load(); }, [load]);
+
+  const handleDownload = async (backupId: string, filename: string) => {
+    try {
+      setDownloadingId(backupId);
+      const blob = await downloadBackupZip(backupId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename || "backup.zip");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Erro ao baixar o backup:", err);
+      alert("Falha ao baixar o backup. Verifique sua conexão ou autenticação.");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   return (
     <>
@@ -101,10 +122,18 @@ export default function Backups() {
                     <td className="text-secondary text-sm">{b.trigger}</td>
                     <td>
                       {b.zip_filename && (
-                        <a href={downloadBackupZip(b.id)} className="btn-icon" title="Baixar ZIP"
-                           download>
-                          <Download size={14} />
-                        </a>
+                        <button
+                           onClick={() => handleDownload(b.id, b.zip_filename!)}
+                           className="btn-icon"
+                           title="Baixar ZIP"
+                           disabled={downloadingId === b.id}
+                        >
+                          {downloadingId === b.id ? (
+                            <span className="spinner spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} />
+                          ) : (
+                            <Download size={14} />
+                          )}
+                        </button>
                       )}
                     </td>
                   </tr>

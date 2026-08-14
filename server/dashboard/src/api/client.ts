@@ -59,7 +59,7 @@ export const deleteNVR = (clientId: string, nvrId: string) =>
 export const fetchBackups = (params?: Record<string, unknown>) =>
   api.get("/backups", { params }).then((r) => r.data);
 export const downloadBackupZip = (backupId: string) =>
-  `${API_BASE}/api/v1/backups/${backupId}/download`;
+  api.get(`/backups/${backupId}/download`, { responseType: 'blob' }).then((r) => r.data);
 
 // ── Settings ──────────────────────────────────────────────────
 export const fetchSettings = () => api.get("/settings").then((r) => r.data);
