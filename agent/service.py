@@ -7,6 +7,7 @@ Start:    python service.py start
 Stop:     python service.py stop
 Remove:   python service.py remove
 """
+import os
 import sys
 import traceback
 import logging
@@ -22,8 +23,9 @@ import win32security
 DIRETORIO = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 EVENTO_BACKUP_MANUAL = r"Global\TrilanAgentNVR_RunNow"
 
-PASTA_LOG = DIRETORIO / "logs"
-PASTA_LOG.mkdir(exist_ok=True)
+# Usa ProgramData para logs — gravavel sem privilegios de admin
+PASTA_LOG = Path(os.environ.get("ProgramData", "C:\\ProgramData")) / "Trilan NVR Backup Agent" / "logs"
+PASTA_LOG.mkdir(parents=True, exist_ok=True)
 ARQUIVO_LOG = PASTA_LOG / "servico.log"
 
 logging.basicConfig(
