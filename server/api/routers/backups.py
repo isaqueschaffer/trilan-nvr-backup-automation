@@ -1,6 +1,7 @@
-﻿from typing import List, Optional
+from typing import List, Optional
 from uuid import UUID
 from datetime import date
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -12,6 +13,8 @@ from database import get_db
 from models import Backup, Client
 from schemas import BackupResponse, PaginatedBackups
 from services.storage_service import get_zip_path
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/backups", tags=["backups"])
 
@@ -66,9 +69,24 @@ def get_backup(backup_id: UUID, db: Session = Depends(get_db)):
 @router.get("/{backup_id}/download", dependencies=[Depends(verify_admin_token)])
 def download_backup_zip(backup_id: UUID, db: Session = Depends(get_db)):
     b = db.query(Backup).filter(Backup.id == backup_id).first()
-    if not b or not b.zip_filename:
-        raise HTTPException(status_code=404, detail="ZIP not available")
+    if not b:
+        raise HTTPException(status_code=404, detail="Backup not found")
+    if not b.zip_filename:
+        raise HTTPException(status_code=404, detail="ZIP nao disponivel para este backup")
+
     path = get_zip_path(b.client_id, b.zip_filename)
     if not path:
-        raise HTTPException(status_code=404, detail="ZIP file not found on disk")
+        from pathlib import Path
+        from config import settings
+        search_base = Path(settings.BACKUP_STORAGE_PATH) / str(b.client_id)
+        logger.error(
+            "ZIP nao encontrado em disco. backup_id=%s filename=%s search_base=%s exists=%s",
+            backup_id, b.zip_filename, search_base, search_base.exists()
+        )
+        raise HTTPException(
+            status_code=404,
+            detail=f"Arquivo ZIP '{b.zip_filename}' nao encontrado no servidor. O backup pode ter sido feito antes da configuracao do armazenamento persistente."
+        )
+
     return FileResponse(path=str(path), filename=b.zip_filename, media_type="application/zip")
+

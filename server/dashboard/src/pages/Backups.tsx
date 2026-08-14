@@ -18,8 +18,18 @@ async function handleDownload(backupId: string, filename: string) {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-  } catch {
-    alert("Erro ao baixar o arquivo. Verifique sua sessão e tente novamente.");
+  } catch (err: unknown) {
+    // Tenta extrair mensagem de erro da API (blob -> json)
+    let msg = "Erro ao baixar o arquivo.";
+    try {
+      const axiosErr = err as { response?: { data?: Blob } };
+      if (axiosErr?.response?.data instanceof Blob) {
+        const text = await axiosErr.response.data.text();
+        const json = JSON.parse(text);
+        if (json?.detail) msg = json.detail;
+      }
+    } catch { /* ignora */ }
+    alert(msg);
   }
 }
 
