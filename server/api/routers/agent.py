@@ -108,6 +108,7 @@ async def upload_backup_zip(
         date_str=date_str,
         nvr_results=nvr_results,
         recipients=client.email_to or [],
+        db=db,
         zip_path=zip_path,
     )
     backup.email_sent = email_sent

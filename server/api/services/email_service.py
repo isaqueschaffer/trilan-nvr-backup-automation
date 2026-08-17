@@ -1,10 +1,12 @@
-﻿import smtplib
+import smtplib
 import logging
 from email.message import EmailMessage
 from pathlib import Path
 from typing import List, Optional
+from sqlalchemy.orm import Session
 
 from config import settings
+from models import Setting
 
 logger = logging.getLogger(__name__)
 
@@ -16,10 +18,26 @@ def send_backup_report(
     date_str: str,
     nvr_results: List[dict],
     recipients: List[str],
+    db: Session,
     zip_path: Optional[Path] = None,
 ) -> bool:
     """Send backup report email. Returns True on success."""
-    if not settings.SMTP_SERVER or not settings.SMTP_EMAIL:
+    smtp_server_setting = db.query(Setting).filter_by(key="smtp_server").first()
+    smtp_email_setting = db.query(Setting).filter_by(key="smtp_email").first()
+    smtp_port_setting = db.query(Setting).filter_by(key="smtp_port").first()
+    smtp_password_setting = db.query(Setting).filter_by(key="smtp_password").first()
+
+    smtp_server = smtp_server_setting.value if smtp_server_setting and smtp_server_setting.value else settings.SMTP_SERVER
+    smtp_email = smtp_email_setting.value if smtp_email_setting and smtp_email_setting.value else settings.SMTP_EMAIL
+    
+    try:
+        smtp_port = int(smtp_port_setting.value) if smtp_port_setting and smtp_port_setting.value else settings.SMTP_PORT
+    except ValueError:
+        smtp_port = settings.SMTP_PORT
+        
+    smtp_password = smtp_password_setting.value if smtp_password_setting and smtp_password_setting.value else settings.SMTP_PASSWORD
+
+    if not smtp_server or not smtp_email:
         logger.warning("SMTP not configured — skipping email.")
         return False
 
@@ -40,7 +58,7 @@ def send_backup_report(
         overall = "⚠️ PARCIAL"
 
     msg = EmailMessage()
-    msg["From"] = settings.SMTP_EMAIL
+    msg["From"] = smtp_email
     msg["To"] = ", ".join(recipients)
     msg["Subject"] = f"[{overall}] Backup NVR — {client_name} — {date_str}"
 
@@ -72,9 +90,9 @@ def send_backup_report(
         )
 
     try:
-        with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=60) as server:
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=60) as server:
             server.starttls()
-            server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD or "")
+            server.login(smtp_email, smtp_password or "")
             server.send_message(msg)
         logger.info(f"Email sent to {recipients}")
         return True
