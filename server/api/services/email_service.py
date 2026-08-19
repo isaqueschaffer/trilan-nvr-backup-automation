@@ -10,7 +10,7 @@ from models import Setting
 
 logger = logging.getLogger(__name__)
 
-LIMIT_ATTACH_BYTES = 18 * 1024 * 1024  # 18 MB
+LIMIT_ATTACH_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
 def send_backup_report(
@@ -79,7 +79,7 @@ def send_backup_report(
             attach = True
             body += "O arquivo ZIP protegido está em anexo."
         else:
-            body += f"⚠️ O ZIP excede o limite de anexo (18MB) e não pôde ser anexado.\n\n"
+            body += f"⚠️ O ZIP excede o limite de anexo (5MB) e não pôde ser anexado.\n\n"
             if backup_id and base_url:
                 link = f"{base_url.rstrip('/')}/api/v1/backups/public-download/{backup_id}"
                 body += f"🔗 CLIQUE NO LINK ABAIXO PARA BAIXAR O BACKUP:\n{link}\n"
