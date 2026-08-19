@@ -90,3 +90,19 @@ def download_backup_zip(backup_id: UUID, db: Session = Depends(get_db)):
 
     return FileResponse(path=str(path), filename=b.zip_filename, media_type="application/zip")
 
+
+@router.get("/public-download/{backup_id}")
+def public_download_backup_zip(backup_id: UUID, db: Session = Depends(get_db)):
+    """Public endpoint for downloading a backup ZIP using the backup ID as token."""
+    b = db.query(Backup).filter(Backup.id == backup_id).first()
+    if not b:
+        raise HTTPException(status_code=404, detail="Backup not found")
+    if not b.zip_filename:
+        raise HTTPException(status_code=404, detail="ZIP nao disponivel para este backup")
+
+    path = get_zip_path(b.client_id, b.zip_filename)
+    if not path:
+        raise HTTPException(status_code=404, detail="Arquivo ZIP nao encontrado no servidor.")
+
+    return FileResponse(path=str(path), filename=b.zip_filename, media_type="application/zip")
+

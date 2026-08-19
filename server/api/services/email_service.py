@@ -20,6 +20,8 @@ def send_backup_report(
     recipients: List[str],
     db: Session,
     zip_path: Optional[Path] = None,
+    backup_id: Optional[str] = None,
+    base_url: Optional[str] = None,
 ) -> bool:
     """Send backup report email. Returns True on success."""
     smtp_server_setting = db.query(Setting).filter_by(key="smtp_server").first()
@@ -77,7 +79,12 @@ def send_backup_report(
             attach = True
             body += "O arquivo ZIP protegido está em anexo."
         else:
-            body += f"⚠️ ZIP excede 18MB e não foi anexado.\nArquivado no servidor: {zip_path.name}"
+            body += f"⚠️ O ZIP excede o limite de anexo (18MB) e não pôde ser anexado.\n\n"
+            if backup_id and base_url:
+                link = f"{base_url.rstrip('/')}/api/v1/backups/public-download/{backup_id}"
+                body += f"🔗 CLIQUE NO LINK ABAIXO PARA BAIXAR O BACKUP:\n{link}\n"
+            else:
+                body += f"Arquivado no servidor: {zip_path.name}\n"
 
     msg.set_content(body)
 

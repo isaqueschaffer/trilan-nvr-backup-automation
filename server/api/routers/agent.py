@@ -3,7 +3,7 @@ Agent-facing router.
 Windows agent authenticates with X-Client-ID + X-API-Key headers.
 """
 from datetime import datetime
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from auth import get_current_client
@@ -84,6 +84,7 @@ def receive_backup_report(
 @router.post("/backup/upload/{backup_id}")
 async def upload_backup_zip(
     backup_id: str,
+    request: Request,
     file: UploadFile = File(...),
     client: Client = Depends(get_current_client),
     db: Session = Depends(get_db),
@@ -113,6 +114,8 @@ async def upload_backup_zip(
         recipients=client.email_to or [],
         db=db,
         zip_path=zip_path,
+        backup_id=backup_id,
+        base_url=str(request.base_url),
     )
     backup.email_sent = email_sent
     db.commit()
