@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchClient, fetchNVRs, createNVR, deleteNVR, updateClient,
-  rotateKey, fetchBackups
+  rotateKey, fetchBackups, restartAgent
 } from "../api/client";
 import { Client, NVR, Backup } from "../api/types";
 import StatusBadge from "../components/StatusBadge";
 import Modal from "../components/Modal";
 import { useToast } from "../components/Toast";
-import { ArrowLeft, Plus, Trash2, RefreshCw, Copy, Edit2, Server, Archive } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, RefreshCw, Copy, Edit2, Server, Archive, RotateCcw } from "lucide-react";
 
 function fmtDate(s: string | null) {
   if (!s) return "—";
@@ -89,6 +89,19 @@ export default function ClientDetail() {
     load();
   };
 
+  const handleRestartAgent = async () => {
+    if (!confirm("Solicitar reinício do agente? Ele será reiniciado no próximo ping (até 5 min).")) return;
+    try {
+      await restartAgent(id!);
+      toast("Reinício agendado! O agente será reiniciado no próximo ping.", "success");
+    } catch {
+      toast("Erro ao solicitar reinício.", "error");
+    }
+  };
+
+  const isAgentOnline = client && client.active &&
+    (client.last_seen && new Date().getTime() - new Date(client.last_seen).getTime() < 15 * 60 * 1000);
+
   const copyText = (t: string) => { navigator.clipboard.writeText(t); toast("Copiado!", "success"); };
 
   if (loading) return <div className="loading-state"><div className="spinner" /></div>;
@@ -113,6 +126,13 @@ export default function ClientDetail() {
           </button>
           <button className="btn btn-secondary" onClick={handleRotateKey}>
             <RefreshCw size={15} /> Rodar API Key
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={handleRestartAgent}
+            title={!isAgentOnline ? "Agente offline — o reinício será executado no próximo ping" : "Reiniciar o agente Windows"}
+          >
+            <RotateCcw size={15} /> Reiniciar Agent
           </button>
         </div>
       </div>

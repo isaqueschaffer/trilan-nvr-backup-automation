@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from auth import get_current_client
 from database import get_db
 from models import Client, Backup
-from schemas import AgentConfigResponse, AgentNVR, BackupReportCreate, BackupReportResponse
+from schemas import AgentConfigResponse, AgentNVR, BackupReportCreate, BackupReportResponse, PingResponse
 from services.crypto_service import decrypt
 from services.storage_service import save_zip
 from services.email_service import send_backup_report
@@ -44,12 +44,15 @@ def get_agent_config(client: Client = Depends(get_current_client), db: Session =
     )
 
 
-@router.post("/ping")
+@router.post("/ping", response_model=PingResponse)
 def ping_agent(client: Client = Depends(get_current_client), db: Session = Depends(get_db)):
-    """Agent heartbeat to mark it as online."""
+    """Agent heartbeat to mark it as online. Returns restart flag if requested."""
     client.last_seen = datetime.utcnow()
+    should_restart = bool(client.restart_requested)
+    if should_restart:
+        client.restart_requested = False  # Consume the flag — restart only once
     db.commit()
-    return {"status": "ok"}
+    return PingResponse(status="ok", restart=should_restart)
 
 
 @router.post("/backup/report", response_model=BackupReportResponse, status_code=201)

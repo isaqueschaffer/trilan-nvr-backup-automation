@@ -135,6 +135,11 @@ class AgentConfigResponse(BaseModel):
     nvrs: List[AgentNVR]
 
 
+class PingResponse(BaseModel):
+    status: str
+    restart: bool = False
+
+
 # ─────────────────────────────────────────────
 # Auth
 # ─────────────────────────────────────────────

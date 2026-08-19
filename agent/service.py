@@ -143,10 +143,18 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
                 # Envia ping a cada 5 minutos (300 segundos) para manter status "Online"
                 if time.time() - last_ping_time >= 300:
                     try:
-                        requests.post(f"{server_url}/api/v1/agent/ping", headers=headers, timeout=10, verify=False)
+                        ping_resp = requests.post(
+                            f"{server_url}/api/v1/agent/ping",
+                            headers=headers, timeout=10, verify=False,
+                        )
                         last_ping_time = time.time()
+                        # Verifica se o servidor solicitou reinicio
+                        if ping_resp.ok and ping_resp.json().get("restart"):
+                            log("Reinicio solicitado pelo dashboard. Reiniciando servico...")
+                            os.system("sc stop TrilanAgentNVR & sc start TrilanAgentNVR")
+                            return  # Encerra este loop; o SCM vai reiniciar o servico
                     except Exception:
-                        pass # Ignora falha no ping para nao travar o loop
+                        pass  # Ignora falha no ping para nao travar o loop
                 
                 segundos = (proximo - agora).total_seconds()
                 if segundos <= 0:
