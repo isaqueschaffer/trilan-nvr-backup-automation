@@ -150,9 +150,17 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
                         last_ping_time = time.time()
                         # Verifica se o servidor solicitou reinicio
                         if ping_resp.ok and ping_resp.json().get("restart"):
-                            log("Reinicio solicitado pelo dashboard. Reiniciando servico...")
-                            os.system("sc stop TrilanAgentNVR & sc start TrilanAgentNVR")
-                            return  # Encerra este loop; o SCM vai reiniciar o servico
+                            log("Reinicio solicitado pelo dashboard. Agendando reinicio do servico...")
+                            # Spawna processo detached: aguarda o servico parar (3s) e reinicia
+                            import subprocess
+                            subprocess.Popen(
+                                ["cmd", "/c", "timeout /t 3 /nobreak >nul && sc start TrilanAgentNVR"],
+                                creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW,
+                            )
+                            # Para o servico de forma limpa (SCM vai receber o sinal de stop)
+                            self.stop_requested = True
+                            win32event.SetEvent(self.hWaitStop)
+                            return
                     except Exception:
                         pass  # Ignora falha no ping para nao travar o loop
                 
