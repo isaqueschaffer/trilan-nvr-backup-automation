@@ -20,6 +20,13 @@ try:
 except Exception as e:
     print(f"Erro ao adicionar coluna last_seen: {e}")
 
+# Migração: adiciona restart_requested se não existir
+try:
+    with engine.begin() as conn:
+        conn.execute(text("ALTER TABLE clients ADD COLUMN IF NOT EXISTS restart_requested BOOLEAN NOT NULL DEFAULT FALSE;"))
+except Exception as e:
+    print(f"Erro ao adicionar coluna restart_requested: {e}")
+
 # ─── App ───────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="Trilan NVR Backup API",
