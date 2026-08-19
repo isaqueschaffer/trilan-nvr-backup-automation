@@ -22,7 +22,7 @@ from Crypto.Util.Padding import pad
 DIR_ATUAL = Path(__file__).resolve().parent
 AES_KEY_HEX = bytes.fromhex("bf8a6df8640f38f3812c19d2aaca7743")
 TIMEOUT = 60
-LIMITE_ANEXO_BYTES = 25 * 1024 * 1024  # 25 MB
+LIMITE_ANEXO_BYTES = 18 * 1024 * 1024  # 18 MB
 
 def data_hoje(): 
     return datetime.now().strftime("%d-%m-%Y")
@@ -185,7 +185,7 @@ def enviar_email(caminho_zip, cliente, resultados, cfg):
     if anexar:
         corpo += "O arquivo ZIP protegido com senha está anexado."
     else:
-        corpo += f"⚠️ O ZIP excede o limite (25MB) e NÃO foi anexado.\nCaminho: {caminho_zip}"
+        corpo += f"⚠️ O ZIP excede o limite (18MB) e NÃO foi anexado.\nCaminho: {caminho_zip}"
         logging.warning("⚠️ ZIP excede limite de anexo, enviando apenas notificação.")
 
     # 1º PASSO: Definir o corpo de texto PRIMEIRO
