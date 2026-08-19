@@ -109,9 +109,6 @@ async def upload_backup_zip(
     # Send email
     nvr_results = backup.nvr_results or []
     
-    # Usa a PUBLIC_URL do .env (se existir), senao cai para a URL que o agente usou
-    final_base_url = settings.PUBLIC_URL if settings.PUBLIC_URL else str(request.base_url)
-    
     email_sent = send_backup_report(
         client_name=client.name,
         date_str=date_str,
@@ -120,7 +117,8 @@ async def upload_backup_zip(
         db=db,
         zip_path=zip_path,
         backup_id=backup_id,
-        base_url=final_base_url,
+        base_url=str(request.base_url),
+        public_url=settings.PUBLIC_URL,
     )
     backup.email_sent = email_sent
     db.commit()

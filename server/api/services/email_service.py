@@ -22,6 +22,7 @@ def send_backup_report(
     zip_path: Optional[Path] = None,
     backup_id: Optional[str] = None,
     base_url: Optional[str] = None,
+    public_url: Optional[str] = None,
 ) -> bool:
     """Send backup report email. Returns True on success."""
     smtp_server_setting = db.query(Setting).filter_by(key="smtp_server").first()
@@ -80,9 +81,18 @@ def send_backup_report(
             body += "O arquivo ZIP protegido está em anexo."
         else:
             body += f"⚠️ O ZIP excede o limite de anexo (5MB) e não pôde ser anexado.\n\n"
-            if backup_id and base_url:
-                link = f"{base_url.rstrip('/')}/api/v1/backups/public-download/{backup_id}"
-                body += f"🔗 CLIQUE NO LINK ABAIXO PARA BAIXAR O BACKUP:\n{link}\n"
+            if backup_id:
+                body += f"🔗 LINKS PARA BAIXAR O BACKUP DIRETAMENTE:\n"
+                
+                if public_url:
+                    link_public = f"{public_url.rstrip('/')}/api/v1/backups/public-download/{backup_id}"
+                    body += f"- Acesso Fixo / Local: {link_public}\n"
+                
+                if base_url:
+                    link_ddns = f"{base_url.rstrip('/')}/api/v1/backups/public-download/{backup_id}"
+                    body += f"- Acesso DDNS (Agente): {link_ddns}\n"
+                    
+                body += f"\nO link não requer senha do painel e pode ser acessado de qualquer navegador.\n\n"
             else:
                 body += f"Arquivado no servidor: {zip_path.name}\n"
 
