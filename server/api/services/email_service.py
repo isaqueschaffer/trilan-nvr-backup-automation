@@ -10,7 +10,7 @@ from models import Setting
 
 logger = logging.getLogger(__name__)
 
-LIMIT_ATTACH_BYTES = 20 * 1024 * 1024  # 20 MB
+LIMIT_ATTACH_BYTES = 25 * 1024 * 1024  # 25 MB
 
 
 def send_backup_report(
@@ -77,7 +77,7 @@ def send_backup_report(
             attach = True
             body += "O arquivo ZIP protegido está em anexo."
         else:
-            body += f"⚠️ ZIP excede 20MB e não foi anexado.\nArquivado no servidor: {zip_path.name}"
+            body += f"⚠️ ZIP excede 25MB e não foi anexado.\nArquivado no servidor: {zip_path.name}"
 
     msg.set_content(body)
 
