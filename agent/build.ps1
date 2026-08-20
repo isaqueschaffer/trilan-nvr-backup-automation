@@ -17,6 +17,10 @@ pyinstaller --noconfirm --onefile `
 
 Write-Host "Compilando aplicativo da bandeja (tray.exe)..."
 pyinstaller --noconfirm --onefile --windowed `
+    --hidden-import pystray `
+    --hidden-import pystray._win32 `
+    --hidden-import PIL `
+    --hidden-import PIL._tkinter_finder `
     --name TrilanAgentTray `
     tray.py
 

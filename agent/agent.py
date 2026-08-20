@@ -25,6 +25,8 @@ import pyzipper
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
+from check_recording import verificar_gravacao_nvr
+
 # ─────────────────────────────────────────────────────────────
 # CONSTANTS
 # ─────────────────────────────────────────────────────────────
@@ -42,7 +44,7 @@ TIMEOUT_SERVER = 120
 def setup_logging():
     log_dir = DIR_AGENT / "logs"
     log_dir.mkdir(exist_ok=True)
-    logger = logging.getLogger("agent")
+    logger = logging.getLogger()
     if not logger.handlers:
         logger.setLevel(logging.INFO)
         fmt = logging.Formatter("[%(asctime)s] %(message)s", "%Y-%m-%d %H:%M:%S")
@@ -62,7 +64,7 @@ def load_conf() -> dict:
     if not CONF_FILE.exists():
         sys.exit(f"ERRO: {CONF_FILE} nao encontrado. Copie agent.conf.example e configure.")
     cfg = configparser.ConfigParser()
-    cfg.read(CONF_FILE, encoding="utf-8")
+    cfg.read(CONF_FILE, encoding="utf-8-sig")
     return {
         "server_url": cfg["server"]["url"].rstrip("/"),
         "client_id": cfg["auth"]["client_id"],
@@ -161,7 +163,11 @@ def processar_nvr(nvr: dict, zip_password: str, pasta_data: Path) -> dict:
         sucessos += 1
 
     status = "OK" if sucessos == 2 else "PARCIAL" if sucessos == 1 else "ERRO"
-    return {"nome": nome, "status": status}
+
+    # Verificar gravacao (cameras)
+    cameras_status = verificar_gravacao_nvr(ip, user, pwd)
+
+    return {"nome": nome, "status": status, "cameras": cameras_status}
 
 
 def criar_zip(pasta: Path, cliente: str, senha: str) -> Path | None:
@@ -197,7 +203,7 @@ def post_report(conf: dict, started_at: datetime, finished_at: datetime,
             "OK" if all(r["status"] == "OK" for r in resultados) else
             "ERROR" if all(r["status"] == "ERRO" for r in resultados) else "PARTIAL"
         ),
-        "nvr_results": [{"nome": r["nome"], "status": r["status"]} for r in resultados],
+        "nvr_results": [{"nome": r["nome"], "status": r["status"], "cameras": r.get("cameras", [])} for r in resultados],
         "trigger": trigger,
     }
     try:

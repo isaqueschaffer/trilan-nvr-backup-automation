@@ -98,7 +98,7 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
             return
 
         cfg = configparser.ConfigParser()
-        cfg.read(conf_file)
+        cfg.read(conf_file, encoding="utf-8-sig")
         server_url = cfg["server"]["url"].rstrip("/")
         client_id = cfg["auth"]["client_id"]
         api_key = cfg["auth"]["api_key"]

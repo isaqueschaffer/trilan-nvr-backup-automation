@@ -6,7 +6,7 @@ import StatusBadge from "../components/StatusBadge";
 import { Download, Search } from "lucide-react";
 
 // Função auxiliar para formatar erros de blob
-async function extractBlobError(err: unknown): string {
+async function extractBlobError(err: unknown): Promise<string> {
   let msg = "Erro ao baixar o arquivo.";
   try {
     const axiosErr = err as { response?: { data?: Blob } };

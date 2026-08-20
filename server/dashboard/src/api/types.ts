@@ -4,6 +4,7 @@ export interface NVR {
   name: string;
   ip: string;
   username: string;
+  last_recording_status?: any;
 }
 
 export interface Client {

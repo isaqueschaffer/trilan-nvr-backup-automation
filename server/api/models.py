@@ -44,6 +44,7 @@ class NVR(Base):
     ip = Column(String(50), nullable=False)
     username = Column(String(100), nullable=False)
     password = Column(Text, nullable=False)  # Fernet-encrypted
+    last_recording_status = Column(JSON, nullable=True)
 
     client = relationship("Client", back_populates="nvrs")
 

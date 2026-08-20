@@ -15,6 +15,49 @@ function fmtDate(s: string | null) {
   return new Date(s).toLocaleString("pt-BR");
 }
 
+function MiniCalendar({ mapStr, referenceDate }: { mapStr: string; referenceDate: string | null }) {
+  if (!mapStr) return <span>—</span>;
+  
+  const refDate = referenceDate ? new Date(referenceDate) : new Date();
+  
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "4px", width: "fit-content" }}>
+      {mapStr.split("").map((char, i) => {
+        const isOk = char === "█";
+        const daysAgo = (mapStr.length - 1) - i;
+        
+        const d = new Date(refDate);
+        d.setDate(d.getDate() - daysAgo);
+        const dateStr = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+        
+        return (
+          <div
+            key={i}
+            title={`${dateStr}: ${isOk ? "Gravou" : "Falhou"}`}
+            className="flex-col items-center justify-center"
+            style={{
+              width: 26,
+              height: 18,
+              flexShrink: 0,
+              borderRadius: 2,
+              backgroundColor: isOk ? "var(--ok)" : "var(--err)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              color: "white",
+              display: "flex",
+              cursor: "help",
+              transition: "transform 0.1s"
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = "scale(1.15)"}
+            onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+          >
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "-0.3px" }}>{dateStr}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ClientDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -27,6 +70,7 @@ export default function ClientDetail() {
 
   const [showNVRModal, setShowNVRModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showRecordingModal, setShowRecordingModal] = useState<{show: boolean, nvrName: string, cameras: any[]}>({show: false, nvrName: "", cameras: []});
   const [rotatedKey, setRotatedKey] = useState<string | null>(null);
   const [nvrForm, setNvrForm] = useState({ name: "", ip: "", username: "", password: "" });
   const [editForm, setEditForm] = useState<Partial<Client> & { zip_password?: string }>({});
@@ -167,12 +211,7 @@ export default function ClientDetail() {
           </div>
           <div className="detail-item">
             <span className="detail-label">Status do Agente</span>
-            <StatusBadge status={
-              !client.active ? "DESATIVADO" : 
-              (client.last_seen && new Date().getTime() - new Date(client.last_seen).getTime() < 15 * 60 * 1000) 
-                ? "ONLINE" 
-                : "OFFLINE"
-            } />
+            <StatusBadge status={client.active ? "ONLINE" : "DESATIVADO"} />
           </div>
         </div>
       </div>
@@ -201,10 +240,16 @@ export default function ClientDetail() {
                   <td className="font-mono text-sm">{nvr.ip}</td>
                   <td className="text-secondary">{nvr.username}</td>
                   <td>
-                    <button className="btn-icon" style={{ color: "var(--err)" }}
-                      onClick={() => handleDeleteNVR(nvr.id, nvr.name)}>
-                      <Trash2 size={14} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button className="btn btn-secondary btn-sm"
+                        onClick={() => setShowRecordingModal({show: true, nvrName: nvr.name, cameras: nvr.last_recording_status || []})}>
+                        Status de Gravação
+                      </button>
+                      <button className="btn-icon" style={{ color: "var(--err)" }}
+                        onClick={() => handleDeleteNVR(nvr.id, nvr.name)}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -318,6 +363,42 @@ export default function ClientDetail() {
             onClick={() => setRotatedKey(null)}>Entendi</button>
         </Modal>
       )}
+      {/* Recording Status Modal */}
+      {showRecordingModal.show && (
+        <Modal wide={true} title={`Gravação - ${showRecordingModal.nvrName} (${fmtDate(client.last_backup_at)})`} onClose={() => setShowRecordingModal({show: false, nvrName: "", cameras: []})}>
+          {showRecordingModal.cameras.length === 0 ? (
+             <div className="empty-state">Sem dados de gravação disponíveis.</div>
+          ) : (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Câmera</th>
+                    <th>Status</th>
+                    <th>Dias Gravados</th>
+                    <th>Mapa (15 dias)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {showRecordingModal.cameras.map((cam, i) => (
+                    <tr key={i}>
+                      <td>{cam.nome}</td>
+                      <td>
+                        <StatusBadge status={cam.online ? (cam.total_dias > 0 ? "ONLINE" : "ERROR") : "OFFLINE"} />
+                      </td>
+                      <td>{cam.total_dias}/15</td>
+                      <td style={{ letterSpacing: "1px" }}>
+                        <MiniCalendar mapStr={cam.mapa} referenceDate={client.last_backup_at} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal>
+      )}
     </>
   );
 }
+

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel, field_validator
@@ -28,6 +28,7 @@ class NVRUpdate(BaseModel):
 class NVRResponse(NVRBase):
     id: UUID
     client_id: UUID
+    last_recording_status: Optional[Any] = None
 
     model_config = {"from_attributes": True}
 
@@ -79,6 +80,7 @@ class ClientWithKey(ClientResponse):
 class NVRResult(BaseModel):
     nome: str
     status: str  # OK, PARCIAL, ERRO
+    cameras: Optional[List[Dict[str, Any]]] = None
 
 
 class BackupReportCreate(BaseModel):

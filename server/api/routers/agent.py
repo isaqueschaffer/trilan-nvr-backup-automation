@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from auth import get_current_client
 from database import get_db
-from models import Client, Backup
+from models import Client, Backup, NVR
 from schemas import AgentConfigResponse, AgentNVR, BackupReportCreate, BackupReportResponse, PingResponse
 from services.crypto_service import decrypt
 from services.storage_service import save_zip
@@ -76,6 +76,13 @@ def receive_backup_report(
     # Update client last backup info
     client.last_backup_at = body.finished_at
     client.last_backup_status = body.status
+
+    # Update NVRs with latest recording status
+    for r in body.nvr_results:
+        if r.cameras is not None:
+            nvr = db.query(NVR).filter(NVR.client_id == client.id, NVR.name == r.nome).first()
+            if nvr:
+                nvr.last_recording_status = r.cameras
 
     db.commit()
     db.refresh(backup)
