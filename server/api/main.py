@@ -13,19 +13,21 @@ from routers import auth_router, clients, nvrs, backups, agent, settings_router
 # ─── Create tables on startup ──────────────────────────────────────────────
 Base.metadata.create_all(bind=engine)
 
-# Executa migração manual para adicionar a coluna last_seen se não existir
-try:
-    with engine.begin() as conn:
-        conn.execute(text("ALTER TABLE clients ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP WITHOUT TIME ZONE;"))
-except Exception as e:
-    print(f"Erro ao adicionar coluna last_seen: {e}")
+from sqlalchemy import inspect
 
-# Migração: adiciona restart_requested se não existir
+# Verifica colunas existentes antes de adicionar
 try:
+    insp = inspect(engine)
+    colunas_existentes = [col['name'] for col in insp.get_columns('clients')]
+    
     with engine.begin() as conn:
-        conn.execute(text("ALTER TABLE clients ADD COLUMN IF NOT EXISTS restart_requested BOOLEAN NOT NULL DEFAULT FALSE;"))
+        if 'last_seen' not in colunas_existentes:
+            conn.execute(text("ALTER TABLE clients ADD COLUMN last_seen TIMESTAMP WITHOUT TIME ZONE;"))
+            
+        if 'restart_requested' not in colunas_existentes:
+            conn.execute(text("ALTER TABLE clients ADD COLUMN restart_requested BOOLEAN NOT NULL DEFAULT FALSE;"))
 except Exception as e:
-    print(f"Erro ao adicionar coluna restart_requested: {e}")
+    print(f"Erro ao executar migrações de colunas: {e}")
 
 # ─── App ───────────────────────────────────────────────────────────────────
 app = FastAPI(
