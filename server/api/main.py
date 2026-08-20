@@ -20,12 +20,21 @@ try:
     insp = inspect(engine)
     colunas_existentes = [col['name'] for col in insp.get_columns('clients')]
     
+    # Verifica nvrs se a tabela existir
+    try:
+        colunas_nvrs = [col['name'] for col in insp.get_columns('nvrs')]
+    except Exception:
+        colunas_nvrs = []
+    
     with engine.begin() as conn:
         if 'last_seen' not in colunas_existentes:
             conn.execute(text("ALTER TABLE clients ADD COLUMN last_seen TIMESTAMP WITHOUT TIME ZONE;"))
             
         if 'restart_requested' not in colunas_existentes:
             conn.execute(text("ALTER TABLE clients ADD COLUMN restart_requested BOOLEAN NOT NULL DEFAULT FALSE;"))
+            
+        if colunas_nvrs and 'last_recording_status' not in colunas_nvrs:
+            conn.execute(text("ALTER TABLE nvrs ADD COLUMN last_recording_status JSON;"))
 except Exception as e:
     print(f"Erro ao executar migrações de colunas: {e}")
 
