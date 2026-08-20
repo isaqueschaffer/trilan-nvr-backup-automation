@@ -1,8 +1,23 @@
 import { useEffect, useState, useCallback } from "react";
-import { fetchBackups, fetchClients, downloadBackupZip } from "../api/client";
+import { fetchBackups, fetchClients } from "../api/client";
+import api from "../api/client";
 import { Backup, Client, PaginatedBackups } from "../api/types";
 import StatusBadge from "../components/StatusBadge";
 import { Download, Search } from "lucide-react";
+
+// Função auxiliar para formatar erros de blob
+async function extractBlobError(err: unknown): string {
+  let msg = "Erro ao baixar o arquivo.";
+  try {
+    const axiosErr = err as { response?: { data?: Blob } };
+    if (axiosErr?.response?.data instanceof Blob) {
+      const text = await axiosErr.response.data.text();
+      const json = JSON.parse(text);
+      if (json?.detail) msg = json.detail;
+    }
+  } catch { /* ignora */ }
+  return msg;
+}
 
 function fmtDate(s: string | null) {
   if (!s) return "—";
@@ -40,18 +55,21 @@ export default function Backups() {
   const handleDownload = async (backupId: string, filename: string) => {
     try {
       setDownloadingId(backupId);
-      const blob = await downloadBackupZip(backupId);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename || "backup.zip");
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
+      const res = await api.get(`/backups/${backupId}/download`, {
+        responseType: "blob",
+      });
+      const url = URL.createObjectURL(new Blob([res.data], { type: "application/zip" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename || "backup.zip";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
       console.error("Erro ao baixar o backup:", err);
-      alert("Falha ao baixar o backup. Verifique sua conexão ou autenticação.");
+      const msg = await extractBlobError(err);
+      alert(msg);
     } finally {
       setDownloadingId(null);
     }
@@ -123,10 +141,10 @@ export default function Backups() {
                     <td>
                       {b.zip_filename && (
                         <button
-                           onClick={() => handleDownload(b.id, b.zip_filename!)}
-                           className="btn-icon"
-                           title="Baixar ZIP"
-                           disabled={downloadingId === b.id}
+                          onClick={() => handleDownload(b.id, b.zip_filename!)}
+                          className="btn-icon"
+                          title="Baixar ZIP"
+                          disabled={downloadingId === b.id}
                         >
                           {downloadingId === b.id ? (
                             <span className="spinner spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} />

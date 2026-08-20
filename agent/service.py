@@ -7,6 +7,7 @@ Start:    python service.py start
 Stop:     python service.py stop
 Remove:   python service.py remove
 """
+import os
 import sys
 import traceback
 import logging
@@ -22,8 +23,9 @@ import win32security
 DIRETORIO = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 EVENTO_BACKUP_MANUAL = r"Global\TrilanAgentNVR_RunNow"
 
-PASTA_LOG = DIRETORIO / "logs"
-PASTA_LOG.mkdir(exist_ok=True)
+# Usa ProgramData para logs — gravavel sem privilegios de admin
+PASTA_LOG = Path(os.environ.get("ProgramData", "C:\\ProgramData")) / "Trilan NVR Backup Agent" / "logs"
+PASTA_LOG.mkdir(parents=True, exist_ok=True)
 ARQUIVO_LOG = PASTA_LOG / "servico.log"
 
 logging.basicConfig(
@@ -141,10 +143,26 @@ class TrilanAgentService(win32serviceutil.ServiceFramework):
                 # Envia ping a cada 5 minutos (300 segundos) para manter status "Online"
                 if time.time() - last_ping_time >= 300:
                     try:
-                        requests.post(f"{server_url}/api/v1/agent/ping", headers=headers, timeout=10, verify=False)
+                        ping_resp = requests.post(
+                            f"{server_url}/api/v1/agent/ping",
+                            headers=headers, timeout=10, verify=False,
+                        )
                         last_ping_time = time.time()
+                        # Verifica se o servidor solicitou reinicio
+                        if ping_resp.ok and ping_resp.json().get("restart"):
+                            log("Reinicio solicitado pelo dashboard. Agendando reinicio do servico...")
+                            # Spawna processo detached: aguarda o servico parar (3s) e reinicia
+                            import subprocess
+                            subprocess.Popen(
+                                ["cmd", "/c", "timeout /t 3 /nobreak >nul && sc start TrilanAgentNVR"],
+                                creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NO_WINDOW,
+                            )
+                            # Para o servico de forma limpa (SCM vai receber o sinal de stop)
+                            self.stop_requested = True
+                            win32event.SetEvent(self.hWaitStop)
+                            return
                     except Exception:
-                        pass # Ignora falha no ping para nao travar o loop
+                        pass  # Ignora falha no ping para nao travar o loop
                 
                 segundos = (proximo - agora).total_seconds()
                 if segundos <= 0:

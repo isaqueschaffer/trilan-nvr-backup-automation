@@ -1,14 +1,16 @@
-﻿import smtplib
+import smtplib
 import logging
 from email.message import EmailMessage
 from pathlib import Path
 from typing import List, Optional
+from sqlalchemy.orm import Session
 
 from config import settings
+from models import Setting
 
 logger = logging.getLogger(__name__)
 
-LIMIT_ATTACH_BYTES = 20 * 1024 * 1024  # 20 MB
+LIMIT_ATTACH_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
 def send_backup_report(
@@ -16,10 +18,29 @@ def send_backup_report(
     date_str: str,
     nvr_results: List[dict],
     recipients: List[str],
+    db: Session,
     zip_path: Optional[Path] = None,
+    backup_id: Optional[str] = None,
+    base_url: Optional[str] = None,
+    public_url: Optional[str] = None,
 ) -> bool:
     """Send backup report email. Returns True on success."""
-    if not settings.SMTP_SERVER or not settings.SMTP_EMAIL:
+    smtp_server_setting = db.query(Setting).filter_by(key="smtp_server").first()
+    smtp_email_setting = db.query(Setting).filter_by(key="smtp_email").first()
+    smtp_port_setting = db.query(Setting).filter_by(key="smtp_port").first()
+    smtp_password_setting = db.query(Setting).filter_by(key="smtp_password").first()
+
+    smtp_server = smtp_server_setting.value if smtp_server_setting and smtp_server_setting.value else settings.SMTP_SERVER
+    smtp_email = smtp_email_setting.value if smtp_email_setting and smtp_email_setting.value else settings.SMTP_EMAIL
+    
+    try:
+        smtp_port = int(smtp_port_setting.value) if smtp_port_setting and smtp_port_setting.value else settings.SMTP_PORT
+    except ValueError:
+        smtp_port = settings.SMTP_PORT
+        
+    smtp_password = smtp_password_setting.value if smtp_password_setting and smtp_password_setting.value else settings.SMTP_PASSWORD
+
+    if not smtp_server or not smtp_email:
         logger.warning("SMTP not configured — skipping email.")
         return False
 
@@ -40,7 +61,7 @@ def send_backup_report(
         overall = "⚠️ PARCIAL"
 
     msg = EmailMessage()
-    msg["From"] = settings.SMTP_EMAIL
+    msg["From"] = smtp_email
     msg["To"] = ", ".join(recipients)
     msg["Subject"] = f"[{overall}] Backup NVR — {client_name} — {date_str}"
 
@@ -59,7 +80,21 @@ def send_backup_report(
             attach = True
             body += "O arquivo ZIP protegido está em anexo."
         else:
-            body += f"⚠️ ZIP excede 20MB e não foi anexado.\nArquivado no servidor: {zip_path.name}"
+            body += f"⚠️ O ZIP excede o limite de anexo (5MB) e não pôde ser anexado.\n\n"
+            if backup_id:
+                body += f"🔗 LINKS PARA BAIXAR O BACKUP DIRETAMENTE:\n"
+                
+                if public_url:
+                    link_public = f"{public_url.rstrip('/')}/api/v1/backups/public-download/{backup_id}"
+                    body += f"- Acesso Fixo / Local: {link_public}\n"
+                
+                if base_url:
+                    link_ddns = f"{base_url.rstrip('/')}/api/v1/backups/public-download/{backup_id}"
+                    body += f"- Acesso DDNS (Agente): {link_ddns}\n"
+                    
+                body += f"\nO link não requer senha do painel e pode ser acessado de qualquer navegador.\n\n"
+            else:
+                body += f"Arquivado no servidor: {zip_path.name}\n"
 
     msg.set_content(body)
 
@@ -72,9 +107,9 @@ def send_backup_report(
         )
 
     try:
-        with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=60) as server:
+        with smtplib.SMTP(smtp_server, smtp_port, timeout=60) as server:
             server.starttls()
-            server.login(settings.SMTP_EMAIL, settings.SMTP_PASSWORD or "")
+            server.login(smtp_email, smtp_password or "")
             server.send_message(msg)
         logger.info(f"Email sent to {recipients}")
         return True

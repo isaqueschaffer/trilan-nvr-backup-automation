@@ -3,16 +3,17 @@ Agent-facing router.
 Windows agent authenticates with X-Client-ID + X-API-Key headers.
 """
 from datetime import datetime
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from auth import get_current_client
 from database import get_db
 from models import Client, Backup
-from schemas import AgentConfigResponse, AgentNVR, BackupReportCreate, BackupReportResponse
+from schemas import AgentConfigResponse, AgentNVR, BackupReportCreate, BackupReportResponse, PingResponse
 from services.crypto_service import decrypt
 from services.storage_service import save_zip
 from services.email_service import send_backup_report
+from config import settings
 
 router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 
@@ -44,12 +45,15 @@ def get_agent_config(client: Client = Depends(get_current_client), db: Session =
     )
 
 
-@router.post("/ping")
+@router.post("/ping", response_model=PingResponse)
 def ping_agent(client: Client = Depends(get_current_client), db: Session = Depends(get_db)):
-    """Agent heartbeat to mark it as online."""
+    """Agent heartbeat to mark it as online. Returns restart flag if requested."""
     client.last_seen = datetime.utcnow()
+    should_restart = bool(client.restart_requested)
+    if should_restart:
+        client.restart_requested = False  # Consume the flag — restart only once
     db.commit()
-    return {"status": "ok"}
+    return PingResponse(status="ok", restart=should_restart)
 
 
 @router.post("/backup/report", response_model=BackupReportResponse, status_code=201)
@@ -81,6 +85,7 @@ def receive_backup_report(
 @router.post("/backup/upload/{backup_id}")
 async def upload_backup_zip(
     backup_id: str,
+    request: Request,
     file: UploadFile = File(...),
     client: Client = Depends(get_current_client),
     db: Session = Depends(get_db),
@@ -103,12 +108,17 @@ async def upload_backup_zip(
 
     # Send email
     nvr_results = backup.nvr_results or []
+    
     email_sent = send_backup_report(
         client_name=client.name,
         date_str=date_str,
         nvr_results=nvr_results,
         recipients=client.email_to or [],
+        db=db,
         zip_path=zip_path,
+        backup_id=backup_id,
+        base_url=str(request.base_url),
+        public_url=settings.PUBLIC_URL,
     )
     backup.email_sent = email_sent
     db.commit()

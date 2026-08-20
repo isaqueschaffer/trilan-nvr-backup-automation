@@ -1,3 +1,5 @@
+; Trilan NVR Backup Agent - Installer Script
+
 [Setup]
 AppName=Trilan NVR Backup Agent
 AppVersion=1.0
@@ -34,20 +36,22 @@ var
 procedure InitializeWizard;
 begin
   ConfigPage := CreateInputQueryPage(wpSelectDir,
-    'Configuração do Agente Trilan',
-    'Insira os dados de conexão com o servidor na nuvem.',
-    'Esses dados serão salvos no arquivo agent.conf.');
+    'Configuracao do Agente Trilan',
+    'Insira os dados de conexao com o servidor na nuvem.',
+    'Esses dados serao salvos no arquivo agent.conf.');
 
   ConfigPage.Add('URL do Servidor:', False);
   ConfigPage.Add('Client ID:', False);
   ConfigPage.Add('API Key:', False);
-  
-  // Sugestões de placeholders
-  ConfigPage.Values[0] := 'http://192.168.75.112:7001';
+
+  ConfigPage.Values[0] := 'http://';
+  ConfigPage.Values[1] := '';
+  ConfigPage.Values[2] := '';
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
+  Result := True;
   if CurPageID = ConfigPage.ID then
   begin
     if Trim(ConfigPage.Values[0]) = '' then
@@ -62,26 +66,41 @@ begin
       Result := False;
       Exit;
     end;
+    if Trim(ConfigPage.Values[2]) = '' then
+    begin
+      MsgBox('Por favor, informe a API Key.', mbError, MB_OK);
+      Result := False;
+      Exit;
+    end;
   end;
-  Result := True;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   ConfigFile: String;
-  ConfigContent: TArrayOfString;
+  FileContent: String;
+  FileHandle: Integer;
 begin
-  if CurStep = ssInstall then
+  if CurStep = ssPostInstall then
   begin
     ConfigFile := ExpandConstant('{app}\agent.conf');
-    SetArrayLength(ConfigContent, 7);
-    ConfigContent[0] := '[server]';
-    ConfigContent[1] := 'url = ' + Trim(ConfigPage.Values[0]);
-    ConfigContent[2] := '';
-    ConfigContent[3] := '[auth]';
-    ConfigContent[4] := 'client_id = ' + Trim(ConfigPage.Values[1]);
-    ConfigContent[5] := 'api_key = ' + Trim(ConfigPage.Values[2]);
-    ConfigContent[6] := '';
-    SaveStringsToFile(ConfigFile, ConfigContent, False);
+
+    // Constroi o conteudo do arquivo
+    FileContent :=
+      '[server]' + #13#10 +
+      'url = ' + Trim(ConfigPage.Values[0]) + #13#10 +
+      '' + #13#10 +
+      '[auth]' + #13#10 +
+      'client_id = ' + Trim(ConfigPage.Values[1]) + #13#10 +
+      'api_key = ' + Trim(ConfigPage.Values[2]) + #13#10;
+
+    // Salva o arquivo
+    if not SaveStringToFile(ConfigFile, FileContent, False) then
+    begin
+      MsgBox('ERRO: Nao foi possivel criar o arquivo agent.conf em:' + #13#10 +
+             ConfigFile + #13#10#13#10 +
+             'Verifique as permissoes da pasta de instalacao.',
+             mbError, MB_OK);
+    end;
   end;
 end;

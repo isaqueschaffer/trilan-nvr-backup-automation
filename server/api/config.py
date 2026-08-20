@@ -1,4 +1,4 @@
-﻿from typing import Optional
+from typing import Optional
 from pydantic_settings import BaseSettings
 
 
@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     # Admin
     ADMIN_PASSWORD: str = "admin"
+    PUBLIC_URL: Optional[str] = None
 
     # Storage
     BACKUP_STORAGE_PATH: str = "/data/backups"

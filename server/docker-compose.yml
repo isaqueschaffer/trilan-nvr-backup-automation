@@ -1,4 +1,4 @@
-﻿version: '3.8'
+version: '3.8'
 
 services:
   nginx:
@@ -24,7 +24,8 @@ services:
     env_file:
       - .env
     volumes:
-      - backup_data:/data/backups
+      # Bind mount para persistir ZIPs entre redeploys do Dokploy
+      - /opt/trilan/backups:/data/backups
     depends_on:
       db:
         condition: service_healthy
@@ -51,7 +52,7 @@ services:
     expose:
       - "5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U {POSTGRES_USER:-trilan}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trilan}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -60,8 +61,8 @@ services:
 
 volumes:
   pg_data:
-  backup_data:
 
 networks:
   trilan_net:
     driver: bridge
+

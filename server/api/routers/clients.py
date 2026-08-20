@@ -98,3 +98,15 @@ def rotate_api_key(client_id: UUID, db: Session = Depends(get_db)):
     client.nvr_count = len(client.nvrs)
     client.api_key = raw_key
     return ClientWithKey.model_validate(client)
+
+
+@router.post("/{client_id}/restart-agent", dependencies=[Depends(verify_admin_token)])
+def request_agent_restart(client_id: UUID, db: Session = Depends(get_db)):
+    """Signal the Windows agent to restart on next ping."""
+    client = db.query(Client).filter(Client.id == client_id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    client.restart_requested = True
+    db.commit()
+    return {"queued": True}
+

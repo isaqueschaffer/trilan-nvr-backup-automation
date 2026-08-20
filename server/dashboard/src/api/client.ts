@@ -44,6 +44,8 @@ export const updateClient = (id: string, data: Record<string, unknown>) =>
 export const deleteClient = (id: string) => api.delete(`/clients/${id}`);
 export const rotateKey = (id: string) =>
   api.post(`/clients/${id}/rotate-key`).then((r) => r.data);
+export const restartAgent = (id: string) =>
+  api.post(`/clients/${id}/restart-agent`).then((r) => r.data);
 
 // ── NVRs ──────────────────────────────────────────────────────
 export const fetchNVRs = (clientId: string) =>
