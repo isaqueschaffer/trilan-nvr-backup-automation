@@ -1,0 +1,23 @@
+[2026-08-21 13:14:49] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-21 13:14:49] Buscando configuracao do servidor...
+[2026-08-21 13:14:49] Cliente : Recanto real
+[2026-08-21 13:14:49] NVRs    : 1
+[2026-08-21 13:14:49] 
+==================================================
+NVR Recanto Real (IP: 192.168.10.2)
+==================================================
+[2026-08-21 13:14:49]   NVR acessivel.
+[2026-08-21 13:15:09]   Salvo: CONFIG_NVR_21-08-2026.bin (7302.6 KB) SHA-256: 2a077f2c9266d896...
+[2026-08-21 13:15:09]   Backup NVR OK.
+[2026-08-21 13:15:10]   Salvo: CONFIG_IPCAM_21-08-2026.xls (67.0 KB) SHA-256: b5a6433abf1241a6...
+[2026-08-21 13:15:10]   Backup IPCAM OK.
+[2026-08-21 13:15:10]   Verificando gravação para 192.168.10.2...
+[2026-08-21 13:27:17]   OK NVR Recanto Real
+[2026-08-21 13:27:17]   ZIP criado: BACKUP_RECANTO_REAL_21-08-2026.zip
+[2026-08-21 13:27:18]   Relatorio enviado. backup_id=fb8ac617-801b-4fb1-b71a-ca6cee1855bd
+[2026-08-21 13:27:22]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 7325676, 'email_sent': True}
+[2026-08-21 13:27:22] 
+Backup concluido em 748.2s
