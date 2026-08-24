@@ -16,11 +16,11 @@ LIMIT_ATTACH_BYTES = 5 * 1024 * 1024  # 5 MB
 
 def _build_backup_section(nvr_results: List[dict], overall: str) -> str:
     """Section 1 — Backup dos NVRs."""
-    icon_map = {"OK": "✅", "PARCIAL": "⚠️", "PARTIAL": "⚠️", "ERRO": "❌", "ERROR": "❌"}
+    icon_map = {"OK": "✅", "PARCIAL": "⚠️", "PARTIAL": "⚠️", "ERRO": "❌", "ERROR": "❌", "SEM_ARQUIVOS": "ℹ️"}
 
     lines = "\n".join(
         f"  {icon_map.get(r['status'], '❓')} {r['nome']}: "
-        f"{'OK' if r['status'] == 'OK' else 'FALHA — ' + r['status']}"
+        f"{'OK' if r['status'] == 'OK' else 'Gravações OK (Backup de config. não suportado)' if r['status'] == 'SEM_ARQUIVOS' else 'FALHA — ' + r['status']}"
         for r in nvr_results
     )
 
@@ -52,16 +52,21 @@ def _build_camera_section(nvr_results: List[dict]) -> str:
             total_cameras += 1
             online = cam.get("online")
             total_dias = cam.get("total_dias", 0)
+            mapa = cam.get("mapa", "")
             cam_nome = cam.get("nome", f"Canal {cam.get('canal', '?')}")
+
+            # Verifica se gravou hoje baseado no mapa (último caractere).
+            # Se o mapa não vier, cai para fallback (total_dias > 0)
+            gravou_hoje = (mapa[-1] == "█") if mapa else (total_dias > 0)
 
             if online is False:
                 cameras_offline += 1
                 problemas.append(f"  ❌ {cam_nome}: Offline")
             elif online is True:
                 cameras_online += 1
-                if total_dias == 0:
+                if not gravou_hoje:
                     cameras_online_sem_gravacao += 1
-                    problemas.append(f"  ⚠️ {cam_nome}: Online, mas não armazena gravação")
+                    problemas.append(f"  ⚠️ {cam_nome}: Online, mas sem gravação recente (hoje)")
             else:
                 # online is None — status desconhecido, conta como offline
                 cameras_offline += 1
@@ -97,12 +102,26 @@ def _build_result_section(nvr_results: List[dict]) -> str:
     has_cameras = any(r.get("cameras") for r in nvr_results)
 
     backup_ok = all(r["status"] in ("OK",) for r in nvr_results)
-    backup_icon = "✅ Concluído" if backup_ok else "⚠️ Concluído com ressalvas"
+    has_motorola = any(r["status"] == "SEM_ARQUIVOS" for r in nvr_results)
+    
+    if backup_ok:
+        backup_icon = "✅ Concluído"
+    elif has_motorola and all(r["status"] in ("OK", "SEM_ARQUIVOS") for r in nvr_results):
+        backup_icon = "ℹ️ Concluído (NVR Motorola não suporta backup de arquivo)"
+    else:
+        backup_icon = "⚠️ Concluído com ressalvas"
 
     if has_cameras:
         all_cameras = [cam for r in nvr_results for cam in (r.get("cameras") or [])]
         any_offline = any(cam.get("online") is False for cam in all_cameras)
-        any_no_rec = any(cam.get("online") is True and cam.get("total_dias", 0) == 0 for cam in all_cameras)
+        any_no_rec = False
+        for cam in all_cameras:
+            if cam.get("online") is True:
+                mapa = cam.get("mapa", "")
+                gravou_hoje = (mapa[-1] == "█") if mapa else (cam.get("total_dias", 0) > 0)
+                if not gravou_hoje:
+                    any_no_rec = True
+                    break
 
         cam_icon = "⚠️ Concluída com problemas" if any_offline else "✅ Concluída"
         rec_icon = "⚠️ Concluída com problemas" if (any_offline or any_no_rec) else "✅ Concluída"

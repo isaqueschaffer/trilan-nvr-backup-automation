@@ -21,3 +21,630 @@ NVR Recanto Real (IP: 192.168.10.2)
 [2026-08-21 13:27:22]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 7325676, 'email_sent': True}
 [2026-08-21 13:27:22] 
 Backup concluido em 748.2s
+[2026-08-21 15:17:09] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-21 15:17:09] Buscando configuracao do servidor...
+[2026-08-21 15:17:09] Cliente : Recanto real
+[2026-08-21 15:17:09] NVRs    : 1
+[2026-08-21 15:17:09] 
+==================================================
+NVR AGERIP (IP: 192.168.124.2)
+==================================================
+[2026-08-21 15:17:09]   NVR INACESSIVEL.
+[2026-08-21 15:17:09]   ERRO NVR AGERIP
+[2026-08-21 15:17:10]   ZIP criado: BACKUP_RECANTO_REAL_21-08-2026.zip
+[2026-08-21 15:17:10]   Relatorio enviado. backup_id=c808d76a-da40-4c4a-b520-90b060799850
+[2026-08-21 15:17:14]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-21 15:17:14] 
+Backup concluido em 0.3s
+[2026-08-21 15:23:25] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-21 15:23:25] Buscando configuracao do servidor...
+[2026-08-21 15:23:25] Cliente : Recanto real
+[2026-08-21 15:23:25] NVRs    : 1
+[2026-08-21 15:23:25] 
+==================================================
+NVR AGERIP (IP: 192.168.124.2)
+==================================================
+[2026-08-21 15:23:25]   Verificando gravação para 192.168.124.2...
+[2026-08-21 15:23:50]   NVR acessivel.
+[2026-08-21 15:23:50]   API ISAPI nao suportada (Motorola/Outro). Backup de arquivos pulado.
+[2026-08-21 15:23:50]   OK NVR AGERIP
+[2026-08-21 15:23:50]   ZIP criado: BACKUP_RECANTO_REAL_21-08-2026.zip
+[2026-08-21 15:23:50]   Relatorio enviado. backup_id=7b964c5f-2daf-4b8f-ad80-1319ddf4bcd8
+[2026-08-21 15:24:02]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-21 15:24:02] 
+Backup concluido em 24.7s
+[2026-08-21 15:36:18] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-21 15:36:18] Buscando configuracao do servidor...
+[2026-08-21 15:36:18] Cliente : Recanto real
+[2026-08-21 15:36:18] NVRs    : 1
+[2026-08-21 15:36:18] 
+==================================================
+NVR AGERIP (IP: 192.168.124.2)
+==================================================
+[2026-08-21 15:36:18]   Verificando gravação para 192.168.124.2...
+[2026-08-21 15:36:46]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-21 15:36:46]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-21 15:36:46]   ? NVR AGERIP
+[2026-08-21 15:36:46]   ZIP criado: BACKUP_RECANTO_REAL_21-08-2026.zip
+[2026-08-21 15:36:47]   Relatorio enviado. backup_id=2c974749-70d0-4f7a-9f82-6ec303f81435
+[2026-08-21 15:36:51]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-21 15:36:51] 
+Backup concluido em 28.3s
+[2026-08-21 15:41:48] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-21 15:41:48] Buscando configuracao do servidor...
+[2026-08-21 15:41:49] Cliente : Recanto real
+[2026-08-21 15:41:49] NVRs    : 1
+[2026-08-21 15:41:49] 
+==================================================
+NVR AGERIP (IP: 192.168.124.2)
+==================================================
+[2026-08-21 15:41:49]   Verificando gravação para 192.168.124.2...
+[2026-08-21 15:42:16]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-21 15:42:16]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-21 15:42:16]   ? NVR AGERIP
+[2026-08-21 15:42:16]   ZIP criado: BACKUP_RECANTO_REAL_21-08-2026.zip
+[2026-08-21 15:42:16]   Relatorio enviado. backup_id=8d175e46-136c-4408-80b5-70c09dbbe49a
+[2026-08-21 15:42:21]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-21 15:42:21] 
+Backup concluido em 27.1s
+[2026-08-24 09:12:50] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 09:12:50] Buscando configuracao do servidor...
+[2026-08-24 09:12:50] Cliente : Recanto real
+[2026-08-24 09:12:50] NVRs    : 1
+[2026-08-24 09:12:50] 
+==================================================
+NVR Recanto Real (IP: 192.168.10.2)
+==================================================
+[2026-08-24 09:12:51]   Verificando gravação para 192.168.10.2...
+[2026-08-24 09:26:42]   NVR acessivel (Detectado: NVR).
+[2026-08-24 09:26:56]   Salvo: CONFIG_NVR_24-08-2026.bin (7302.6 KB) SHA-256: 8aa471df33923aed...
+[2026-08-24 09:26:56]   Backup NVR OK.
+[2026-08-24 09:26:56]   Salvo: CONFIG_IPCAM_24-08-2026.xls (67.0 KB) SHA-256: 35cae87a28f7d777...
+[2026-08-24 09:26:56]   Backup IPCAM OK.
+[2026-08-24 09:26:56]   OK NVR Recanto Real
+[2026-08-24 09:26:58]   ZIP criado: BACKUP_RECANTO_REAL_24-08-2026.zip
+[2026-08-24 09:26:59]   Relatorio enviado. backup_id=5425901d-3834-49bb-b13a-ecc074070db1
+[2026-08-24 09:27:07]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 7325646, 'email_sent': True}
+[2026-08-24 09:27:07] 
+Backup concluido em 845.9s
+[2026-08-24 10:11:45] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 10:11:45] Buscando configuracao do servidor...
+[2026-08-24 10:11:45] Cliente : Recanto real
+[2026-08-24 10:11:45] NVRs    : 1
+[2026-08-24 10:11:45] 
+==================================================
+NVR Recanto Real (IP: 192.168.10.2)
+==================================================
+[2026-08-24 10:11:46]   Verificando gravação para 192.168.10.2...
+[2026-08-24 10:11:52]   Nenhuma câmera encontrada para verificação de gravação.
+[2026-08-24 10:11:52]   NVR INACESSIVEL ou falha no login.
+[2026-08-24 10:11:52]   ERRO NVR Recanto Real
+[2026-08-24 10:11:52]   ZIP criado: BACKUP_RECANTO_REAL_24-08-2026.zip
+[2026-08-24 10:11:52]   Relatorio enviado. backup_id=a54a0bdd-0ce6-4b5e-a32a-ad6603f06372
+[2026-08-24 10:11:57]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-24 10:11:57] 
+Backup concluido em 6.7s
+[2026-08-24 12:14:44] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 12:14:45] Buscando configuracao do servidor...
+[2026-08-24 12:14:45] Cliente : Agerip
+[2026-08-24 12:14:45] NVRs    : 1
+[2026-08-24 12:14:45] 
+==================================================
+Agerip (IP: 192.168.124.2)
+==================================================
+[2026-08-24 12:14:45]   Verificando gravação para 192.168.124.2...
+[2026-08-24 12:15:08]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:15:08]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:15:08]   ? Agerip
+[2026-08-24 12:15:08]   ZIP criado: BACKUP_AGERIP_24-08-2026.zip
+[2026-08-24 12:15:08]   Relatorio enviado. backup_id=06a23488-4c6c-4a05-af88-56fa06b0f344
+[2026-08-24 12:15:14]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-24 12:15:14] 
+Backup concluido em 23.4s
+[2026-08-24 12:22:55] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 12:22:55] Buscando configuracao do servidor...
+[2026-08-24 12:22:55] Cliente : Agerip
+[2026-08-24 12:22:55] NVRs    : 9
+[2026-08-24 12:22:55] 
+==================================================
+NVR 02 (IP: 192.168.124.3)
+==================================================
+[2026-08-24 12:22:55]   Verificando gravação para 192.168.124.3...
+[2026-08-24 12:23:14]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:23:14]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:23:14] 
+==================================================
+NVR 03 (IP: 192.168.124.4)
+==================================================
+[2026-08-24 12:23:14]   Verificando gravação para 192.168.124.4...
+[2026-08-24 12:23:53]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:23:53]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:23:53] 
+==================================================
+NVR 04 (IP: 192.168.124.5)
+==================================================
+[2026-08-24 12:23:53]   Verificando gravação para 192.168.124.5...
+[2026-08-24 12:25:06]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:25:06]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:25:06] 
+==================================================
+NVR 05 (IP: 192.168.124.6)
+==================================================
+[2026-08-24 12:25:06]   Verificando gravação para 192.168.124.6...
+[2026-08-24 12:25:57]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:25:57]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:25:57] 
+==================================================
+NVR 07 (IP: 192.168.124.8)
+==================================================
+[2026-08-24 12:25:57]   Verificando gravação para 192.168.124.8...
+[2026-08-24 12:26:14]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:26:14]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:26:14] 
+==================================================
+NVR 06 (IP: 192.168.124.7)
+==================================================
+[2026-08-24 12:26:14]   Verificando gravação para 192.168.124.7...
+[2026-08-24 12:26:45]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:26:45]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:26:45] 
+==================================================
+NVR 08 (IP: 192.168.124.9)
+==================================================
+[2026-08-24 12:26:45]   Verificando gravação para 192.168.124.9...
+[2026-08-24 12:26:45]   Nenhuma câmera encontrada para verificação de gravação.
+[2026-08-24 12:26:45]   NVR INACESSIVEL ou falha no login.
+[2026-08-24 12:26:45] 
+==================================================
+NVR 09 (IP: 192.168.124.10)
+==================================================
+[2026-08-24 12:26:45]   Verificando gravação para 192.168.124.10...
+[2026-08-24 12:26:49]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:26:49]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:26:49] 
+==================================================
+NVR 01 (IP: 192.168.124.2)
+==================================================
+[2026-08-24 12:26:49]   Verificando gravação para 192.168.124.2...
+[2026-08-24 12:27:12]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:27:12]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:27:12]   ? NVR 02
+[2026-08-24 12:27:12]   ? NVR 03
+[2026-08-24 12:27:12]   ? NVR 04
+[2026-08-24 12:27:12]   ? NVR 05
+[2026-08-24 12:27:12]   ? NVR 07
+[2026-08-24 12:27:12]   ? NVR 06
+[2026-08-24 12:27:12]   ERRO NVR 08
+[2026-08-24 12:27:12]   ? NVR 09
+[2026-08-24 12:27:12]   ? NVR 01
+[2026-08-24 12:27:12]   ZIP criado: BACKUP_AGERIP_24-08-2026.zip
+[2026-08-24 12:27:13]   Relatorio enviado. backup_id=36163973-d941-4a7b-b23a-f771cf459653
+[2026-08-24 12:27:17]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-24 12:27:17] 
+Backup concluido em 256.9s
+[2026-08-24 12:31:44] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 12:31:44] Buscando configuracao do servidor...
+[2026-08-24 12:31:45] Cliente : Agerip
+[2026-08-24 12:31:45] NVRs    : 9
+[2026-08-24 12:31:45] 
+==================================================
+NVR 01 (IP: 192.168.124.2)
+==================================================
+[2026-08-24 12:31:45]   Verificando gravação para 192.168.124.2...
+[2026-08-24 12:32:08]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:32:08]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:32:08] 
+==================================================
+NVR 09 (IP: 192.168.124.10)
+==================================================
+[2026-08-24 12:32:08]   Verificando gravação para 192.168.124.10...
+[2026-08-24 12:32:13]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:32:13]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:32:13] 
+==================================================
+NVR 06 (IP: 192.168.124.7)
+==================================================
+[2026-08-24 12:32:13]   Verificando gravação para 192.168.124.7...
+[2026-08-24 12:32:44]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:32:44]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:32:44] 
+==================================================
+NVR 04 (IP: 192.168.124.5)
+==================================================
+[2026-08-24 12:32:44]   Verificando gravação para 192.168.124.5...
+[2026-08-24 12:33:55]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:33:55]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:33:55] 
+==================================================
+NVR 05 (IP: 192.168.124.6)
+==================================================
+[2026-08-24 12:33:55]   Verificando gravação para 192.168.124.6...
+[2026-08-24 12:34:44]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:34:44]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:34:44] 
+==================================================
+NVR 02 (IP: 192.168.124.3)
+==================================================
+[2026-08-24 12:34:44]   Verificando gravação para 192.168.124.3...
+[2026-08-24 12:35:03]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:35:03]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:35:03] 
+==================================================
+NVR 03 (IP: 192.168.124.4)
+==================================================
+[2026-08-24 12:35:03]   Verificando gravação para 192.168.124.4...
+[2026-08-24 12:35:40]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:35:40]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:35:40] 
+==================================================
+NVR 08 (IP: 192.168.124.9)
+==================================================
+[2026-08-24 12:35:40]   Verificando gravação para 192.168.124.9...
+[2026-08-24 12:35:40]   Nenhuma câmera encontrada para verificação de gravação.
+[2026-08-24 12:35:40]   NVR INACESSIVEL ou falha no login.
+[2026-08-24 12:35:40] 
+==================================================
+NVR 07 (IP: 192.168.124.8)
+==================================================
+[2026-08-24 12:35:40]   Verificando gravação para 192.168.124.8...
+[2026-08-24 12:35:55]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:35:55]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:35:55]   ? NVR 01
+[2026-08-24 12:35:55]   ? NVR 09
+[2026-08-24 12:35:55]   ? NVR 06
+[2026-08-24 12:35:55]   ? NVR 04
+[2026-08-24 12:35:55]   ? NVR 05
+[2026-08-24 12:35:55]   ? NVR 02
+[2026-08-24 12:35:55]   ? NVR 03
+[2026-08-24 12:35:55]   ERRO NVR 08
+[2026-08-24 12:35:55]   ? NVR 07
+[2026-08-24 12:35:55]   ZIP criado: BACKUP_AGERIP_24-08-2026.zip
+[2026-08-24 12:35:55]   Relatorio enviado. backup_id=4a358764-762f-464b-a3e1-9b5af54b6dba
+[2026-08-24 12:35:59]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-24 12:35:59] 
+Backup concluido em 250.1s
+[2026-08-24 12:50:59] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 12:50:59] Buscando configuracao do servidor...
+[2026-08-24 12:50:59] Cliente : Agerip
+[2026-08-24 12:50:59] NVRs    : 9
+[2026-08-24 12:50:59] 
+==================================================
+NVR 01 (IP: 192.168.124.2)
+==================================================
+[2026-08-24 12:50:59]   Verificando gravação para 192.168.124.2...
+[2026-08-24 12:51:22]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:51:22]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:51:22] 
+==================================================
+NVR 09 (IP: 192.168.124.10)
+==================================================
+[2026-08-24 12:51:22]   Verificando gravação para 192.168.124.10...
+[2026-08-24 12:51:27]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:51:27]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:51:27] 
+==================================================
+NVR 06 (IP: 192.168.124.7)
+==================================================
+[2026-08-24 12:51:27]   Verificando gravação para 192.168.124.7...
+[2026-08-24 12:51:58]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:51:58]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:51:58] 
+==================================================
+NVR 04 (IP: 192.168.124.5)
+==================================================
+[2026-08-24 12:51:58]   Verificando gravação para 192.168.124.5...
+[2026-08-24 12:53:10]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:53:10]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:53:10] 
+==================================================
+NVR 05 (IP: 192.168.124.6)
+==================================================
+[2026-08-24 12:53:10]   Verificando gravação para 192.168.124.6...
+[2026-08-24 12:53:59]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:53:59]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:53:59] 
+==================================================
+NVR 02 (IP: 192.168.124.3)
+==================================================
+[2026-08-24 12:53:59]   Verificando gravação para 192.168.124.3...
+[2026-08-24 12:54:18]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:54:18]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:54:18] 
+==================================================
+NVR 03 (IP: 192.168.124.4)
+==================================================
+[2026-08-24 12:54:18]   Verificando gravação para 192.168.124.4...
+[2026-08-24 12:54:54]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:54:54]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:54:54] 
+==================================================
+NVR 07 (IP: 192.168.124.8)
+==================================================
+[2026-08-24 12:54:54]   Verificando gravação para 192.168.124.8...
+[2026-08-24 12:55:07]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 12:55:07]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 12:55:07] 
+==================================================
+NVR 08 (IP: 192.168.124.9)
+==================================================
+[2026-08-24 12:55:07]   Verificando gravação para 192.168.124.9...
+[2026-08-24 12:55:07]   Nenhuma câmera encontrada para verificação de gravação.
+[2026-08-24 12:55:07]   NVR INACESSIVEL ou falha no login.
+[2026-08-24 12:55:07]   ? NVR 01
+[2026-08-24 12:55:07]   ? NVR 09
+[2026-08-24 12:55:07]   ? NVR 06
+[2026-08-24 12:55:07]   ? NVR 04
+[2026-08-24 12:55:07]   ? NVR 05
+[2026-08-24 12:55:07]   ? NVR 02
+[2026-08-24 12:55:07]   ? NVR 03
+[2026-08-24 12:55:07]   ? NVR 07
+[2026-08-24 12:55:07]   ERRO NVR 08
+[2026-08-24 12:55:07]   ZIP criado: BACKUP_AGERIP_24-08-2026.zip
+[2026-08-24 12:55:07]   Relatorio enviado. backup_id=b2ef7887-1c35-48ce-a525-e7f9d1bcb3de
+[2026-08-24 12:55:12]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-24 12:55:12] 
+Backup concluido em 248.3s
+[2026-08-24 14:45:39] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 14:45:39] Buscando configuracao do servidor...
+[2026-08-24 14:45:39] Cliente : Agerip
+[2026-08-24 14:45:39] NVRs    : 9
+[2026-08-24 14:45:39] 
+==================================================
+NVR 01 (IP: 192.168.124.2)
+==================================================
+[2026-08-24 14:45:39]   Verificando gravação para 192.168.124.2...
+[2026-08-24 14:46:03]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:46:03]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:46:03] 
+==================================================
+NVR 09 (IP: 192.168.124.10)
+==================================================
+[2026-08-24 14:46:03]   Verificando gravação para 192.168.124.10...
+[2026-08-24 14:46:08]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:46:08]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:46:08] 
+==================================================
+NVR 06 (IP: 192.168.124.7)
+==================================================
+[2026-08-24 14:46:08]   Verificando gravação para 192.168.124.7...
+[2026-08-24 14:46:39]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:46:39]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:46:39] 
+==================================================
+NVR 04 (IP: 192.168.124.5)
+==================================================
+[2026-08-24 14:46:39]   Verificando gravação para 192.168.124.5...
+[2026-08-24 14:47:51]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:47:51]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:47:51] 
+==================================================
+NVR 05 (IP: 192.168.124.6)
+==================================================
+[2026-08-24 14:47:51]   Verificando gravação para 192.168.124.6...
+[2026-08-24 14:48:42]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:48:42]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:48:42] 
+==================================================
+NVR 02 (IP: 192.168.124.3)
+==================================================
+[2026-08-24 14:48:42]   Verificando gravação para 192.168.124.3...
+[2026-08-24 14:49:07]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:49:07]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:49:07] 
+==================================================
+NVR 03 (IP: 192.168.124.4)
+==================================================
+[2026-08-24 14:49:07]   Verificando gravação para 192.168.124.4...
+[2026-08-24 14:49:46]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:49:46]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:49:46] 
+==================================================
+NVR 07 (IP: 192.168.124.8)
+==================================================
+[2026-08-24 14:49:46]   Verificando gravação para 192.168.124.8...
+[2026-08-24 14:50:01] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 14:50:01] Buscando configuracao do servidor...
+[2026-08-24 14:50:01] Cliente : Agerip
+[2026-08-24 14:50:01] NVRs    : 9
+[2026-08-24 14:50:01] 
+==================================================
+NVR 01 (IP: 192.168.124.2)
+==================================================
+[2026-08-24 14:50:01]   Verificando gravação para 192.168.124.2...
+[2026-08-24 14:50:01]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:50:01]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:50:01] 
+==================================================
+NVR 08 (IP: 192.168.124.9)
+==================================================
+[2026-08-24 14:50:01]   Verificando gravação para 192.168.124.9...
+[2026-08-24 14:50:02]   Nenhuma câmera encontrada para verificação de gravação.
+[2026-08-24 14:50:02]   NVR INACESSIVEL ou falha no login.
+[2026-08-24 14:50:02]   ? NVR 01
+[2026-08-24 14:50:02]   ? NVR 09
+[2026-08-24 14:50:02]   ? NVR 06
+[2026-08-24 14:50:02]   ? NVR 04
+[2026-08-24 14:50:02]   ? NVR 05
+[2026-08-24 14:50:02]   ? NVR 02
+[2026-08-24 14:50:02]   ? NVR 03
+[2026-08-24 14:50:02]   ? NVR 07
+[2026-08-24 14:50:02]   ERRO NVR 08
+[2026-08-24 14:50:02]   ZIP criado: BACKUP_AGERIP_24-08-2026.zip
+[2026-08-24 14:50:02]   Relatorio enviado. backup_id=06e2aebc-61c5-4a7d-8240-ca85c61f4b8d
+[2026-08-24 14:50:08]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-24 14:50:08] 
+Backup concluido em 262.7s
+[2026-08-24 14:50:23]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:50:23]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:50:23] 
+==================================================
+NVR 09 (IP: 192.168.124.10)
+==================================================
+[2026-08-24 14:50:23]   Verificando gravação para 192.168.124.10...
+[2026-08-24 14:50:28]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:50:28]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:50:28] 
+==================================================
+NVR 06 (IP: 192.168.124.7)
+==================================================
+[2026-08-24 14:50:28]   Verificando gravação para 192.168.124.7...
+[2026-08-24 14:50:59]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:50:59]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:50:59] 
+==================================================
+NVR 04 (IP: 192.168.124.5)
+==================================================
+[2026-08-24 14:50:59]   Verificando gravação para 192.168.124.5...
+[2026-08-24 14:52:12]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:52:12]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:52:12] 
+==================================================
+NVR 05 (IP: 192.168.124.6)
+==================================================
+[2026-08-24 14:52:12]   Verificando gravação para 192.168.124.6...
+[2026-08-24 14:52:26] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-24 14:52:26] Buscando configuracao do servidor...
+[2026-08-24 14:52:26] Cliente : Agerip
+[2026-08-24 14:52:26] NVRs    : 9
+[2026-08-24 14:52:26] 
+==================================================
+NVR 01 (IP: 192.168.124.2)
+==================================================
+[2026-08-24 14:52:26]   Verificando gravação para 192.168.124.2...
+[2026-08-24 14:52:49]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:52:49]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:52:49] 
+==================================================
+NVR 09 (IP: 192.168.124.10)
+==================================================
+[2026-08-24 14:52:49]   Verificando gravação para 192.168.124.10...
+[2026-08-24 14:52:54]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:52:54]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:52:54] 
+==================================================
+NVR 06 (IP: 192.168.124.7)
+==================================================
+[2026-08-24 14:52:54]   Verificando gravação para 192.168.124.7...
+[2026-08-24 14:53:02]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:53:02]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:53:02] 
+==================================================
+NVR 02 (IP: 192.168.124.3)
+==================================================
+[2026-08-24 14:53:02]   Verificando gravação para 192.168.124.3...
+[2026-08-24 14:53:05] Erro ao buscar datas motorola em 192.168.124.7 canal {00000004-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.7', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:53:15] Erro ao buscar datas motorola em 192.168.124.7 canal {00000007-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.7', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:53:21]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:53:21]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:53:21] 
+==================================================
+NVR 03 (IP: 192.168.124.4)
+==================================================
+[2026-08-24 14:53:21]   Verificando gravação para 192.168.124.4...
+[2026-08-24 14:53:25] Erro ao buscar datas motorola em 192.168.124.7 canal {00000008-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.7', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:53:25]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:53:25]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:53:25] 
+==================================================
+NVR 04 (IP: 192.168.124.5)
+==================================================
+[2026-08-24 14:53:25]   Verificando gravação para 192.168.124.5...
+[2026-08-24 14:53:37] Erro ao buscar datas motorola em 192.168.124.5 canal {00000001-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.5', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:53:47] Erro ao buscar datas motorola em 192.168.124.5 canal {00000003-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.5', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:53:57] Erro ao buscar datas motorola em 192.168.124.5 canal {00000004-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.5', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:54:07] Erro ao buscar datas motorola em 192.168.124.5 canal {00000005-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.5', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:54:17] Erro ao buscar datas motorola em 192.168.124.5 canal {00000006-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.5', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:54:27] Erro ao buscar datas motorola em 192.168.124.5 canal {00000007-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.5', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:54:37] Erro ao buscar datas motorola em 192.168.124.5 canal {00000008-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.5', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:54:37]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:54:37]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:54:37] 
+==================================================
+NVR 05 (IP: 192.168.124.6)
+==================================================
+[2026-08-24 14:54:37]   Verificando gravação para 192.168.124.6...
+[2026-08-24 14:54:48] Erro ao buscar datas motorola em 192.168.124.6 canal {00000001-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.6', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:55:02] Erro ao buscar datas motorola em 192.168.124.6 canal {00000005-0000-0000-0000-000000000000}: HTTPConnectionPool(host='192.168.124.6', port=80): Read timed out. (read timeout=10)
+[2026-08-24 14:55:27]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:55:27]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:55:27] 
+==================================================
+NVR 02 (IP: 192.168.124.3)
+==================================================
+[2026-08-24 14:55:27]   Verificando gravação para 192.168.124.3...
+[2026-08-24 14:55:47]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:55:47]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:55:47] 
+==================================================
+NVR 03 (IP: 192.168.124.4)
+==================================================
+[2026-08-24 14:55:47]   Verificando gravação para 192.168.124.4...
+[2026-08-24 14:56:24]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:56:24]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:56:24] 
+==================================================
+NVR 07 (IP: 192.168.124.8)
+==================================================
+[2026-08-24 14:56:24]   Verificando gravação para 192.168.124.8...
+[2026-08-24 14:56:39]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:56:39]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:56:39] 
+==================================================
+NVR 08 (IP: 192.168.124.9)
+==================================================
+[2026-08-24 14:56:39]   Verificando gravação para 192.168.124.9...
+[2026-08-24 14:56:56]   NVR acessivel (Detectado: MOTOROLA).
+[2026-08-24 14:56:56]   NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.
+[2026-08-24 14:56:56]   ? NVR 01
+[2026-08-24 14:56:56]   ? NVR 09
+[2026-08-24 14:56:56]   ? NVR 06
+[2026-08-24 14:56:56]   ? NVR 04
+[2026-08-24 14:56:56]   ? NVR 05
+[2026-08-24 14:56:56]   ? NVR 02
+[2026-08-24 14:56:56]   ? NVR 03
+[2026-08-24 14:56:56]   ? NVR 07
+[2026-08-24 14:56:56]   ? NVR 08
+[2026-08-24 14:56:56]   ZIP criado: BACKUP_AGERIP_24-08-2026.zip
+[2026-08-24 14:56:56]   Relatorio enviado. backup_id=8f7fa8ae-7f75-4d20-b66b-7a645e95b3c9
+[2026-08-24 14:56:59]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-24 14:56:59] 
+Backup concluido em 269.6s

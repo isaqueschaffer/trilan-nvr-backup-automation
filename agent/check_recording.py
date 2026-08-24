@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import re
 import uuid
 import logging
+import base64
 
 TIMEOUT = 20
 DIAS_VERIFICAR = 15
@@ -138,10 +139,103 @@ def buscar_cameras_dvr(nvr_ip, usuario, senha):
 
 def buscar_cameras(nvr_ip, usuario, senha):
     cameras = buscar_cameras_nvr(nvr_ip, usuario, senha)
-    if cameras: return cameras, "NVR"
+    if cameras: return cameras, "NVR", None
     cameras = buscar_cameras_dvr(nvr_ip, usuario, senha)
-    if cameras: return cameras, "DVR"
-    return {}, "DESCONHECIDO"
+    if cameras: return cameras, "DVR", None
+    
+    cameras, sessao = buscar_cameras_motorola(nvr_ip, usuario, senha)
+    if cameras: return cameras, "MOTOROLA", sessao
+    
+    return {}, "DESCONHECIDO", None
+
+def buscar_cameras_motorola(nvr_ip, usuario, senha):
+    session = requests.Session()
+    pwd_b64 = base64.b64encode(senha.encode('utf-8')).decode('utf-8')
+    xml_header = '<?xml version="1.0" encoding="utf-8" ?>'
+    
+    try:
+        # Tenta o fluxo novo de login (reqLogin -> doLogin com hash SHA-512)
+        xml_req = f'{xml_header}<request version="1.0" systemType="NVMS-9000" clientType="WEB"/>'
+        r_req = session.post(f"http://{nvr_ip}/reqLogin", data=xml_req.encode('utf-8'), headers={"Content-Type": "application/xml"}, timeout=10, verify=False)
+        
+        login_efetuado = False
+        r = None
+        
+        if r_req.status_code == 200 and "success" in r_req.text:
+            root_req = parse_xml_seguro(r_req.content)
+            nonce = texto(root_req, ".//nonce", None)
+            token = texto(root_req, ".//token", None)
+            
+            if nonce and token:
+                import hashlib
+                pwd_md5 = hashlib.md5(senha.encode('utf-8')).hexdigest().upper()
+                hash_final = hashlib.sha512((pwd_md5 + "#" + nonce).encode('utf-8')).hexdigest()
+                
+                xml_login = f'{xml_header}<request version="1.0" systemType="NVMS-9000" clientType="WEB"><token>{token}</token><content><userName><![CDATA[{usuario}]]></userName><password><![CDATA[{hash_final}]]></password></content></request>'
+                
+                r = session.post(f"http://{nvr_ip}/doLogin", data=xml_login.encode('utf-8'), headers={"Content-Type": "application/xml"}, timeout=10, verify=False)
+                if r.status_code == 200 and "success" in r.text:
+                    login_efetuado = True
+                    
+        # Se falhou ou não suporta reqLogin, tenta o login antigo (Base64)
+        if not login_efetuado:
+            xml_login = f'{xml_header}<request version="1.0" systemType="NVMS-9000" clientType="WEB"><content><userName><![CDATA[{usuario}]]></userName><password><![CDATA[{pwd_b64}]]></password></content></request>'
+            r = session.post(f"http://{nvr_ip}/doLogin", data=xml_login.encode('utf-8'), headers={"Content-Type": "application/xml"}, timeout=10, verify=False)
+            if r.status_code == 200 and "success" in r.text:
+                login_efetuado = True
+                
+        if login_efetuado and r is not None:
+            root = parse_xml_seguro(r.content)
+            session_id = texto(root, ".//sessionId", None)
+            if not session_id:
+                return None, None
+            session.cookies.set('auInfo_N9K', pwd_b64)
+            session.cookies.set('sessionId', session_id.strip('{}'))
+            
+            # Save token for later requests
+            token_val = token if 'token' in locals() and token else ""
+            session.tvt_token = token_val
+            token_xml = f"<token>{token_val}</token>" if token_val else ""
+            
+            # Buscando canais
+            xml_chls = f'{xml_header}<request version="1.0" systemType="NVMS-9000" clientType="WEB">{token_xml}</request>'
+            r2 = session.post(f"http://{nvr_ip}/queryChlsExistRec", data=xml_chls.encode('utf-8'), headers={"Content-Type": "application/xml"}, timeout=10, verify=False)
+            if r2.status_code == 200:
+                root2 = parse_xml_seguro(r2.content)
+                cameras = {}
+                for item in root2.findall(".//item"):
+                    cid = item.get("id", "")
+                    nome = item.text or ""
+                    cameras[cid] = {"nome": nome, "ip": nvr_ip, "online": True}
+                return cameras, session
+    except Exception as e:
+        logging.error(f"Erro no login motorola {nvr_ip}: {e}")
+        pass
+    return None, None
+
+def buscar_datas_gravacao_motorola(nvr_ip, session, canal_id):
+    xml_header = '<?xml version="1.0" encoding="utf-8" ?>'
+    token_val = getattr(session, 'tvt_token', '')
+    token_xml = f"<token>{token_val}</token>" if token_val else ""
+    
+    xml_req = f'{xml_header}<request version="1.0" systemType="NVMS-9000" clientType="WEB">{token_xml}<condition><chlId>{canal_id}</chlId></condition></request>'
+    try:
+        r = session.post(f"http://{nvr_ip}/queryDatesExistRec", data=xml_req.encode('utf-8'), headers={"Content-Type": "application/xml"}, timeout=10, verify=False)
+        if r.status_code == 200:
+            root = parse_xml_seguro(r.content)
+            datas = []
+            for item in root.findall(".//item"):
+                if item.text:
+                    try:
+                        dt = datetime.strptime(item.text.strip(), "%Y-%m-%d")
+                        datas.append(dt)
+                    except ValueError:
+                        pass
+            return datas
+    except Exception as e:
+        logging.error(f"Erro ao buscar datas motorola em {nvr_ip} canal {canal_id}: {e}")
+        pass
+    return []
 
 def tem_gravacao_no_dia(nvr_ip, usuario, senha, canal_id, data):
     try:
@@ -223,13 +317,33 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 def verificar_gravacao_nvr(nvr_ip, usuario, senha):
     logging.info(f"  Verificando gravação para {nvr_ip}...")
     try:
-        cameras, tipo = buscar_cameras(nvr_ip, usuario, senha)
+        cameras, tipo, sessao = buscar_cameras(nvr_ip, usuario, senha)
         if not cameras:
             logging.info(f"  Nenhuma câmera encontrada para verificação de gravação.")
-            return []
+            return [], tipo
 
         hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         resultados = []
+        
+        if tipo == "MOTOROLA":
+            # Motorola: Processamento mais rápido via endpoint agrupado por datas
+            for canal_id, camera in cameras.items():
+                datas_gravadas = buscar_datas_gravacao_motorola(nvr_ip, sessao, canal_id)
+                # Filtra apenas os dias que estão no range de verificação
+                dias_com_gravacao = []
+                for dt in datas_gravadas:
+                    if (hoje - timedelta(days=DIAS_VERIFICAR)) <= dt <= hoje:
+                        dias_com_gravacao.append(dt)
+                        
+                resultados.append({
+                    "canal": canal_id,
+                    "nome": camera["nome"],
+                    "ip": camera["ip"],
+                    "online": camera["online"],
+                    "total_dias": len(dias_com_gravacao),
+                    "mapa": gerar_mapa_dias(dias_com_gravacao)
+                })
+            return resultados, tipo
 
         with ThreadPoolExecutor(max_workers=10) as executor:
             for canal_id, camera in cameras.items():
@@ -237,16 +351,8 @@ def verificar_gravacao_nvr(nvr_ip, usuario, senha):
                 ip = camera["ip"]
                 online = camera["online"]
 
-                if online is False:
-                    resultados.append({
-                        "canal": canal_id,
-                        "nome": nome,
-                        "ip": ip,
-                        "online": False,
-                        "total_dias": 0,
-                        "mapa": "░" * DIAS_VERIFICAR
-                    })
-                    continue
+                # Removemos o bloqueio de câmeras offline para permitir a checagem
+                # do histórico de gravação dos 15 dias (pois as gravações ficam no NVR).
 
                 # Submit checks for all 15 days for this camera
                 future_to_day = {
@@ -276,8 +382,8 @@ def verificar_gravacao_nvr(nvr_ip, usuario, senha):
                     "mapa": gerar_mapa_dias(dias_com_gravacao)
                 })
 
-        return resultados
+        return resultados, tipo
     except Exception as e:
         logging.error(f"  Erro ao verificar gravação: {e}")
-        return []
+        return [], "DESCONHECIDO"
 

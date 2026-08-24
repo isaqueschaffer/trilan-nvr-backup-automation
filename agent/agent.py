@@ -134,38 +134,52 @@ def processar_nvr(nvr: dict, zip_password: str, pasta_data: Path) -> dict:
     pasta_nvr = pasta_data / nome.replace(" ", "_")
     pasta_nvr.mkdir(parents=True, exist_ok=True)
 
+    # Verificar gravacao (cameras) primeiro (Auto-Detecta Hikvision / Motorola)
+    retorno = verificar_gravacao_nvr(ip, user, pwd)
+    if isinstance(retorno, tuple) and len(retorno) == 2:
+        cameras_status, tipo = retorno
+    else:
+        cameras_status, tipo = retorno, "DESCONHECIDO"
+    
+    if not cameras_status:
+        logging.error("  NVR INACESSIVEL ou falha no login.")
+        return {"nome": nome, "status": "ERRO"}
+        
+    logging.info(f"  NVR acessivel (Detectado: {tipo}).")
+
     sessao = requests.Session()
     sessao.auth = HTTPDigestAuth(user, pwd)
     sessao.verify = False
-
-    try:
-        sessao.get(f"http://{ip}/ISAPI/System/status", timeout=10).raise_for_status()
-        logging.info("  NVR acessivel.")
-    except Exception:
-        logging.error("  NVR INACESSIVEL.")
-        return {"nome": nome, "status": "ERRO"}
-
+    
     sucessos = 0
+    status = "OK"
 
-    # Config NVR (.bin)
-    sk, iv = gerar_secretkey(zip_password)
-    url_bin = f"http://{ip}/ISAPI/System/configurationData?secretkey={sk}&security=1&iv={iv}"
-    arq_bin = pasta_nvr / f"CONFIG_NVR_{data_hoje()}.bin"
-    if baixar_arquivo(sessao, url_bin, arq_bin, min_bytes=100_000, valida_xml=True):
-        logging.info("  Backup NVR OK.")
-        sucessos += 1
+    if tipo == "MOTOROLA":
+        logging.info("  NVR Motorola detectado. Backup de arquivos de configuracao nao suportado nativamente. Gravacoes verificadas.")
+        status = "SEM_ARQUIVOS"
+    else:
+        try:
+            sessao.get(f"http://{ip}/ISAPI/System/status", timeout=5).raise_for_status()
+            
+            # Config NVR (.bin)
+            sk, iv = gerar_secretkey(zip_password)
+            url_bin = f"http://{ip}/ISAPI/System/configurationData?secretkey={sk}&security=1&iv={iv}"
+            arq_bin = pasta_nvr / f"CONFIG_NVR_{data_hoje()}.bin"
+            if baixar_arquivo(sessao, url_bin, arq_bin, min_bytes=100_000, valida_xml=True):
+                logging.info("  Backup NVR OK.")
+                sucessos += 1
 
-    # Config IPCAM (.xls)
-    url_xls = f"http://{ip}/ISAPI/ContentMgmt/InputProxy/ipcConfig"
-    arq_xls = pasta_nvr / f"CONFIG_IPCAM_{data_hoje()}.xls"
-    if baixar_arquivo(sessao, url_xls, arq_xls):
-        logging.info("  Backup IPCAM OK.")
-        sucessos += 1
-
-    status = "OK" if sucessos == 2 else "PARCIAL" if sucessos == 1 else "ERRO"
-
-    # Verificar gravacao (cameras)
-    cameras_status = verificar_gravacao_nvr(ip, user, pwd)
+            # Config IPCAM (.xls)
+            url_xls = f"http://{ip}/ISAPI/ContentMgmt/InputProxy/ipcConfig"
+            arq_xls = pasta_nvr / f"CONFIG_IPCAM_{data_hoje()}.xls"
+            if baixar_arquivo(sessao, url_xls, arq_xls):
+                logging.info("  Backup IPCAM OK.")
+                sucessos += 1
+                
+            status = "OK" if sucessos == 2 else "PARCIAL"
+        except Exception:
+            logging.info("  API ISAPI falhou. Backup de arquivos pulado.")
+            status = "PARCIAL"
 
     return {"nome": nome, "status": status, "cameras": cameras_status}
 
