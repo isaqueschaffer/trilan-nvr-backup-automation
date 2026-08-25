@@ -1,4 +1,4 @@
-﻿import { X } from "lucide-react";
+import { X } from "lucide-react";
 import { useEffect } from "react";
 
 interface Props {
@@ -17,7 +17,7 @@ export default function Modal({ title, onClose, children, wide }: Props) {
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={wide ? { maxWidth: 680 } : {}}>
+      <div className="modal" style={wide ? { maxWidth: 900 } : {}}>
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
           <button className="btn-icon" onClick={onClose}><X size={16} /></button>

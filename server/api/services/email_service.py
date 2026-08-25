@@ -50,27 +50,31 @@ def _build_camera_section(nvr_results: List[dict]) -> str:
 
         for cam in cameras:
             total_cameras += 1
-            online = cam.get("online")
-            total_dias = cam.get("total_dias", 0)
-            mapa = cam.get("mapa", "")
             cam_nome = cam.get("nome", f"Canal {cam.get('canal', '?')}")
 
-            # Verifica se gravou hoje baseado no mapa (último caractere).
-            # Se o mapa não vier, cai para fallback (total_dias > 0)
-            gravou_hoje = (mapa[-1] == "█") if mapa else (total_dias > 0)
+            # Novos status normalizados (Fallback para clientes antigos)
+            status_comunicacao = cam.get("status_comunicacao")
+            if not status_comunicacao:
+                online = cam.get("online")
+                status_comunicacao = "ONLINE" if online else "OFFLINE" if online is False else "DESCONHECIDO"
+                
+            status_gravacao = cam.get("status_gravacao")
+            if not status_gravacao:
+                total_dias = cam.get("total_dias", 0)
+                mapa = cam.get("mapa", "")
+                gravou_hoje = (mapa[-1] == "█") if mapa else (total_dias > 0)
+                status_gravacao = "COM_GRAVACAO" if gravou_hoje else "SEM_GRAVACAO"
 
-            if online is False:
-                cameras_offline += 1
-                problemas.append(f"  ❌ {cam_nome}: Offline")
-            elif online is True:
+            if status_comunicacao == "ONLINE":
                 cameras_online += 1
-                if not gravou_hoje:
+                if status_gravacao == "SEM_GRAVACAO":
                     cameras_online_sem_gravacao += 1
-                    problemas.append(f"  ⚠️ {cam_nome}: Online, mas sem gravação recente (hoje)")
+                    problemas.append(f"  ⚠️ {cam_nome}: Online, mas sem gravação")
+                elif status_gravacao == "NAO_VERIFICADO":
+                    problemas.append(f"  ⚠️ {cam_nome}: Online, mas falhou ao verificar histórico de gravação")
             else:
-                # online is None — status desconhecido, conta como offline
                 cameras_offline += 1
-                problemas.append(f"  ❌ {cam_nome}: Offline (status desconhecido)")
+                problemas.append(f"  ❌ {cam_nome}: Offline ({status_comunicacao})")
 
         if problemas:
             problemas_por_nvr[nvr_nome] = problemas
@@ -113,15 +117,26 @@ def _build_result_section(nvr_results: List[dict]) -> str:
 
     if has_cameras:
         all_cameras = [cam for r in nvr_results for cam in (r.get("cameras") or [])]
-        any_offline = any(cam.get("online") is False for cam in all_cameras)
+        any_offline = False
         any_no_rec = False
+        
         for cam in all_cameras:
-            if cam.get("online") is True:
-                mapa = cam.get("mapa", "")
-                gravou_hoje = (mapa[-1] == "█") if mapa else (cam.get("total_dias", 0) > 0)
-                if not gravou_hoje:
+            status_comunicacao = cam.get("status_comunicacao")
+            if not status_comunicacao:
+                status_comunicacao = "ONLINE" if cam.get("online") else "OFFLINE"
+                
+            if status_comunicacao != "ONLINE":
+                any_offline = True
+            
+            if status_comunicacao == "ONLINE":
+                status_gravacao = cam.get("status_gravacao")
+                if not status_gravacao:
+                    mapa = cam.get("mapa", "")
+                    gravou_hoje = (mapa[-1] == "█") if mapa else (cam.get("total_dias", 0) > 0)
+                    status_gravacao = "COM_GRAVACAO" if gravou_hoje else "SEM_GRAVACAO"
+                    
+                if status_gravacao in ("SEM_GRAVACAO", "NAO_VERIFICADO"):
                     any_no_rec = True
-                    break
 
         cam_icon = "⚠️ Concluída com problemas" if any_offline else "✅ Concluída"
         rec_icon = "⚠️ Concluída com problemas" if (any_offline or any_no_rec) else "✅ Concluída"

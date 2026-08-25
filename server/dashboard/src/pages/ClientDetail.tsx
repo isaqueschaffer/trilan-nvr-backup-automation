@@ -21,7 +21,7 @@ function MiniCalendar({ mapStr, referenceDate }: { mapStr: string; referenceDate
   const refDate = referenceDate ? new Date(referenceDate) : new Date();
   
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "4px", width: "fit-content" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "4px", width: "fit-content", minWidth: "150px" }}>
       {mapStr.split("").map((char, i) => {
         const isOk = char === "█";
         const daysAgo = (mapStr.length - 1) - i;
@@ -374,24 +374,40 @@ export default function ClientDetail() {
                 <thead>
                   <tr>
                     <th>Câmera</th>
-                    <th>Status</th>
+                    <th>Rede</th>
+                    <th>Gravação</th>
                     <th>Dias Gravados</th>
                     <th>Mapa (15 dias)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {showRecordingModal.cameras.map((cam, i) => (
+                  {showRecordingModal.cameras.map((cam, i) => {
+                    // Fallbacks para clientes antigos
+                    let rede = cam.status_comunicacao;
+                    if (!rede) rede = cam.online ? "ONLINE" : (cam.online === false ? "OFFLINE" : "DESCONHECIDO");
+                    
+                    let gravacao = cam.status_gravacao;
+                    if (!gravacao) {
+                        const gravouHoje = cam.mapa ? cam.mapa.endsWith("█") : cam.total_dias > 0;
+                        gravacao = gravouHoje ? "COM_GRAVACAO" : "SEM_GRAVACAO";
+                    }
+
+                    return (
                     <tr key={i}>
-                      <td>{cam.nome}</td>
+                      <td>{cam.nome || `Canal ${cam.canal}`}</td>
                       <td>
-                        <StatusBadge status={cam.online ? (cam.total_dias > 0 ? "ONLINE" : "ERROR") : "OFFLINE"} />
+                        <StatusBadge status={rede} />
                       </td>
-                      <td>{cam.total_dias}/15</td>
+                      <td>
+                        <StatusBadge status={gravacao} />
+                      </td>
+                      <td>{cam.total_dias || 0}/15</td>
                       <td style={{ letterSpacing: "1px" }}>
-                        <MiniCalendar mapStr={cam.mapa} referenceDate={client.last_backup_at} />
+                        <MiniCalendar mapStr={cam.mapa || ""} referenceDate={client.last_backup_at} />
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

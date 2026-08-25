@@ -3,11 +3,16 @@ interface Props { status: string | null | undefined; }
 const map: Record<string, { cls: string; dot: string; label: string }> = {
   OK:      { cls: "ok",   dot: "ok",   label: "OK" },
   ONLINE:  { cls: "ok",   dot: "ok",   label: "Online" },
-  OFFLINE: { cls: "muted",dot: "err",  label: "Offline" },
+  OFFLINE: { cls: "err",  dot: "err",  label: "Offline" },
   PARTIAL: { cls: "warn", dot: "warn", label: "Parcial" },
   PARCIAL: { cls: "warn", dot: "warn", label: "Parcial" },
   ERROR:   { cls: "err",  dot: "err",  label: "Erro" },
   ERRO:    { cls: "err",  dot: "err",  label: "Erro" },
+  ERRO_COMUNICACAO: { cls: "err", dot: "err", label: "Erro Comunicação" },
+  COM_GRAVACAO: { cls: "ok", dot: "ok", label: "Gravando" },
+  SEM_GRAVACAO: { cls: "warn", dot: "warn", label: "Sem Gravação" },
+  NAO_VERIFICADO: { cls: "muted", dot: "muted", label: "Não Verificado" },
+  SEM_ARQUIVOS: { cls: "ok", dot: "ok", label: "Apenas Gravações (Sem Backup de Config)" },
 };
 
 export default function StatusBadge({ status }: Props) {
