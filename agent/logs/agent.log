@@ -2516,3 +2516,49 @@ NVR 01 (IP: 192.168.20.2)
 [2026-08-25 16:02:45]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 3160957, 'email_sent': True}
 [2026-08-25 16:02:45] 
 Backup concluido em 48.2s
+[2026-08-25 16:21:30] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-25 16:21:30] Buscando configuracao do servidor...
+[2026-08-25 16:21:31] Cliente : Agerip
+[2026-08-25 16:21:31] NVRs    : 1
+[2026-08-25 16:21:31] 
+==================================================
+NVR 01 (IP: 192.168.20.2)
+==================================================
+[2026-08-25 16:21:31]   Verificando gravação para 192.168.20.2...
+[2026-08-25 16:22:17]   NVR acessivel (Detectado: NVR).
+[2026-08-25 16:22:25]   Salvo: CONFIG_NVR_25-08-2026.bin (3205.6 KB) SHA-256: 91b19122937d4b70...
+[2026-08-25 16:22:25]   Backup NVR OK.
+[2026-08-25 16:22:25]   Salvo: CONFIG_IPCAM_25-08-2026.xls (22.0 KB) SHA-256: 424f0ad30515c608...
+[2026-08-25 16:22:25]   Backup IPCAM OK.
+[2026-08-25 16:22:25]   OK NVR 01
+[2026-08-25 16:22:26]   ZIP criado: BACKUP_AGERIP_25-08-2026.zip
+[2026-08-25 16:22:26]   Relatorio enviado. backup_id=c8bdc167-6fc5-461e-a95e-3cd03d76144a
+[2026-08-25 16:22:49]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 3160953, 'email_sent': True}
+[2026-08-25 16:22:49] 
+Backup concluido em 54.5s
+[2026-08-25 16:39:37] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-25 16:39:37] Buscando configuracao do servidor...
+[2026-08-25 16:39:37] Cliente : Agerip
+[2026-08-25 16:39:37] NVRs    : 1
+[2026-08-25 16:39:37] 
+==================================================
+NVR 01 (IP: 192.168.20.2)
+==================================================
+[2026-08-25 16:39:37]   Verificando gravação para 192.168.20.2...
+[2026-08-25 16:40:21]   NVR acessivel (Detectado: NVR).
+[2026-08-25 16:40:24]   Salvo: CONFIG_NVR_25-08-2026.bin (3205.6 KB) SHA-256: 9285d0b77daa4c8e...
+[2026-08-25 16:40:25]   Backup NVR OK.
+[2026-08-25 16:40:25]   Salvo: CONFIG_IPCAM_25-08-2026.xls (22.0 KB) SHA-256: 595b12670c08a632...
+[2026-08-25 16:40:25]   Backup IPCAM OK.
+[2026-08-25 16:40:25]   OK NVR 01
+[2026-08-25 16:40:26]   ZIP criado: BACKUP_AGERIP_25-08-2026.zip
+[2026-08-25 16:40:26]   Relatorio enviado. backup_id=41c0a930-a6e2-4957-be84-1db376498303
+[2026-08-25 16:41:02]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 3160956, 'email_sent': False}
+[2026-08-25 16:41:02] 
+Backup concluido em 47.6s
