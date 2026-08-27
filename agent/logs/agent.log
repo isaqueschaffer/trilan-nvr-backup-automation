@@ -2453,3 +2453,66 @@ NVR 03 (IP: 192.168.124.4)
 [2026-08-25 15:46:50]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
 [2026-08-25 15:46:50] 
 Backup concluido em 329.4s
+[2026-08-25 15:55:20] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-25 15:55:20] Buscando configuracao do servidor...
+[2026-08-25 15:55:20] Cliente : Agerip
+[2026-08-25 15:55:20] NVRs    : 1
+[2026-08-25 15:55:20] 
+==================================================
+NVR 01 (IP: 192.168.20.2)
+==================================================
+[2026-08-25 15:55:20]   Verificando gravação para 192.168.20.2...
+[2026-08-25 15:55:20]   Nenhuma câmera encontrada para verificação de gravação.
+[2026-08-25 15:55:20]   NVR INACESSIVEL ou falha no login.
+[2026-08-25 15:55:20]   ERRO NVR 01
+[2026-08-25 15:55:20]   ZIP criado: BACKUP_AGERIP_25-08-2026.zip
+[2026-08-25 15:55:20]   Relatorio enviado. backup_id=9adc4501-d1d5-4aef-b04f-9b486d7ccd94
+[2026-08-25 15:55:25]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-25 15:55:25] 
+Backup concluido em 0.4s
+[2026-08-25 15:56:41] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-25 15:56:41] Buscando configuracao do servidor...
+[2026-08-25 15:56:41] Cliente : Agerip
+[2026-08-25 15:56:41] NVRs    : 1
+[2026-08-25 15:56:41] 
+==================================================
+NVR 01 (IP: 192.168.20.2)
+==================================================
+[2026-08-25 15:56:41]   Verificando gravação para 192.168.20.2...
+[2026-08-25 15:56:42]   Nenhuma câmera encontrada para verificação de gravação.
+[2026-08-25 15:56:42]   NVR INACESSIVEL ou falha no login.
+[2026-08-25 15:56:42]   ERRO NVR 01
+[2026-08-25 15:56:42]   ZIP criado: BACKUP_AGERIP_25-08-2026.zip
+[2026-08-25 15:56:42]   Relatorio enviado. backup_id=fddc287c-d543-45d6-a0c3-2ad2552d0bce
+[2026-08-25 15:56:46]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 22, 'email_sent': True}
+[2026-08-25 15:56:46] 
+Backup concluido em 0.3s
+[2026-08-25 16:01:29] 
+============================================================
+INICIANDO BACKUP — MANUAL
+============================================================
+[2026-08-25 16:01:29] Buscando configuracao do servidor...
+[2026-08-25 16:01:29] Cliente : Agerip
+[2026-08-25 16:01:29] NVRs    : 1
+[2026-08-25 16:01:29] 
+==================================================
+NVR 01 (IP: 192.168.20.2)
+==================================================
+[2026-08-25 16:01:29]   Verificando gravação para 192.168.20.2...
+[2026-08-25 16:02:13]   NVR acessivel (Detectado: NVR).
+[2026-08-25 16:02:17]   Salvo: CONFIG_NVR_25-08-2026.bin (3205.6 KB) SHA-256: 4cfae5a30ce3492f...
+[2026-08-25 16:02:17]   Backup NVR OK.
+[2026-08-25 16:02:17]   Salvo: CONFIG_IPCAM_25-08-2026.xls (22.0 KB) SHA-256: ab3cdb8f7c218946...
+[2026-08-25 16:02:17]   Backup IPCAM OK.
+[2026-08-25 16:02:17]   OK NVR 01
+[2026-08-25 16:02:18]   ZIP criado: BACKUP_AGERIP_25-08-2026.zip
+[2026-08-25 16:02:18]   Relatorio enviado. backup_id=abcdf753-7612-4f2f-a8fd-c64dc70d8650
+[2026-08-25 16:02:45]   ZIP enviado ao servidor. Resposta: {'status': 'ok', 'zip_size': 3160957, 'email_sent': True}
+[2026-08-25 16:02:45] 
+Backup concluido em 48.2s
