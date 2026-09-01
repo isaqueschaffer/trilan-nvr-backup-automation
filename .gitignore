@@ -32,6 +32,9 @@ agent/agent.conf.bak
 agent/logs/
 *.sqlite3
 
+# Node
+node_modules/
+
 # Temp / IDEs
 .vscode/
 .idea/
