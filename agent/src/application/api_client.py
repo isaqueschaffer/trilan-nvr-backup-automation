@@ -26,7 +26,11 @@ def post_report(conf: dict, started_at: datetime, finished_at: datetime,
             "OK" if all(r["status"] == "OK" for r in resultados) else
             "ERROR" if all(r["status"] == "ERRO" for r in resultados) else "PARTIAL"
         ),
-        "nvr_results": [{"nome": r["nome"], "status": r["status"], "cameras": r.get("cameras", [])} for r in resultados],
+        # campo nvr_results mantido por compatibilidade com o servidor; inclui tipo do equipamento
+        "nvr_results": [
+            {"nome": r["nome"], "status": r["status"], "cameras": r.get("cameras") or []}
+            for r in resultados
+        ],
         "trigger": trigger,
     }
     try:

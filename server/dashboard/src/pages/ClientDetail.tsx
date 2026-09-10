@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  fetchClient, fetchNVRs, createNVR, deleteNVR, updateClient,
+  fetchEquipamentos, createEquipamento, deleteEquipamento, updateClient,
   rotateKey, fetchBackups, restartAgent
 } from "../api/client";
-import { Client, NVR, Backup } from "../api/types";
+import { Client, NVR, Backup, TipoEquipamento } from "../api/types";
 import StatusBadge from "../components/StatusBadge";
 import Modal from "../components/Modal";
 import { useToast } from "../components/Toast";
@@ -64,49 +64,65 @@ export default function ClientDetail() {
   const { toast } = useToast();
 
   const [client, setClient] = useState<Client | null>(null);
-  const [nvrs, setNVRs] = useState<NVR[]>([]);
+  const [equipamentos, setEquipamentos] = useState<NVR[]>([]);
   const [backups, setBackups] = useState<Backup[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [showNVRModal, setShowNVRModal] = useState(false);
+  const [showEqModal, setShowEqModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRecordingModal, setShowRecordingModal] = useState<{show: boolean, nvrName: string, cameras: any[]}>({show: false, nvrName: "", cameras: []});
   const [rotatedKey, setRotatedKey] = useState<string | null>(null);
-  const [nvrForm, setNvrForm] = useState({ name: "", ip: "", username: "", password: "" });
+  const [eqForm, setEqForm] = useState({ tipo: "NVR" as TipoEquipamento, name: "", ip: "", username: "", password: "", pasta_origem: "" });
   const [editForm, setEditForm] = useState<Partial<Client> & { zip_password?: string }>({});
   const [saving, setSaving] = useState(false);
 
+  const TIPOS: TipoEquipamento[] = ["NVR", "OLT", "ONU", "PABX"];
+
+  const TIPO_ICONE: Record<string, string> = {
+    NVR: "📹", OLT: "🔌", ONU: "📡", PABX: "☎️",
+  };
+
   const load = async () => {
     if (!id) return;
-    const [c, n, b] = await Promise.all([
-      fetchClient(id),
-      fetchNVRs(id),
+    const [c, eqs, b] = await Promise.all([
+      (await import("../api/client")).fetchClient(id),
+      fetchEquipamentos(id),
       fetchBackups({ client_id: id, size: 10 }),
     ]);
-    setClient(c); setNVRs(n); setBackups(b.items);
+    setClient(c); setEquipamentos(eqs); setBackups(b.items);
     setLoading(false);
   };
   useEffect(() => { load(); }, [id]);
 
-  const handleAddNVR = async () => {
-    if (!nvrForm.name || !nvrForm.ip || !nvrForm.username || !nvrForm.password) {
-      toast("Preencha todos os campos.", "error"); return;
+  const handleAddEquipamento = async () => {
+    if (!eqForm.name || !eqForm.ip || !eqForm.username || !eqForm.password) {
+      toast("Preencha todos os campos obrigatórios.", "error"); return;
+    }
+    if (eqForm.tipo === "OLT" && !eqForm.pasta_origem) {
+      toast("Para OLT, informe a pasta de origem dos backups.", "error"); return;
     }
     setSaving(true);
     try {
-      await createNVR(id!, nvrForm);
-      toast("NVR adicionado!", "success");
-      setShowNVRModal(false);
-      setNvrForm({ name: "", ip: "", username: "", password: "" });
+      await createEquipamento(id!, {
+        tipo: eqForm.tipo,
+        name: eqForm.name,
+        ip: eqForm.ip,
+        username: eqForm.username,
+        password: eqForm.password,
+        config_extra: eqForm.tipo === "OLT" ? { pasta_origem: eqForm.pasta_origem } : null,
+      });
+      toast("Equipamento adicionado!", "success");
+      setShowEqModal(false);
+      setEqForm({ tipo: "NVR", name: "", ip: "", username: "", password: "", pasta_origem: "" });
       load();
-    } catch { toast("Erro ao adicionar NVR.", "error"); }
+    } catch { toast("Erro ao adicionar equipamento.", "error"); }
     finally { setSaving(false); }
   };
 
-  const handleDeleteNVR = async (nvrId: string, name: string) => {
-    if (!confirm(`Remover NVR "${name}"?`)) return;
-    await deleteNVR(id!, nvrId);
-    toast("NVR removido.", "success");
+  const handleDeleteEquipamento = async (eqId: string, name: string) => {
+    if (!confirm(`Remover equipamento "${name}"?`)) return;
+    await deleteEquipamento(id!, eqId);
+    toast("Equipamento removido.", "success");
     load();
   };
 
@@ -216,37 +232,44 @@ export default function ClientDetail() {
         </div>
       </div>
 
-      {/* NVRs */}
+      {/* Equipamentos */}
       <div className="flex items-center justify-between mb-3">
-        <div className="section-title mb-0"><Server size={15} />NVRs ({nvrs.length})</div>
-        <button className="btn btn-secondary" onClick={() => setShowNVRModal(true)}>
-          <Plus size={14} /> Adicionar NVR
+        <div className="section-title mb-0"><Server size={15} />Equipamentos ({equipamentos.length})</div>
+        <button className="btn btn-secondary" onClick={() => setShowEqModal(true)}>
+          <Plus size={14} /> Adicionar Equipamento
         </button>
       </div>
 
-      {nvrs.length === 0 ? (
+      {equipamentos.length === 0 ? (
         <div className="empty-state" style={{ padding: "32px" }}>
-          <div className="empty-icon">📹</div>
-          <div>Nenhum NVR cadastrado.</div>
+          <div className="empty-icon">🖥️</div>
+          <div>Nenhum equipamento cadastrado.</div>
         </div>
       ) : (
         <div className="table-wrap mb-6">
           <table>
-            <thead><tr><th>Nome</th><th>IP</th><th>Usuário</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Tipo</th><th>Nome</th><th>IP</th><th>Usuário</th><th>Ações</th></tr></thead>
             <tbody>
-              {nvrs.map(nvr => (
-                <tr key={nvr.id}>
-                  <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>{nvr.name}</td>
-                  <td className="font-mono text-sm">{nvr.ip}</td>
-                  <td className="text-secondary">{nvr.username}</td>
+              {equipamentos.map(eq => (
+                <tr key={eq.id}>
+                  <td>
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>
+                      {TIPO_ICONE[eq.tipo] || "🖥️"} {eq.tipo}
+                    </span>
+                  </td>
+                  <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>{eq.name}</td>
+                  <td className="font-mono text-sm">{eq.ip}</td>
+                  <td className="text-secondary">{eq.username}</td>
                   <td>
                     <div className="flex items-center gap-2">
-                      <button className="btn btn-secondary btn-sm"
-                        onClick={() => setShowRecordingModal({show: true, nvrName: nvr.name, cameras: nvr.last_recording_status || []})}>
-                        Status de Gravação
-                      </button>
+                      {eq.tipo === "NVR" && (
+                        <button className="btn btn-secondary btn-sm"
+                          onClick={() => setShowRecordingModal({show: true, nvrName: eq.name, cameras: eq.last_recording_status || []})}>
+                          Status de Gravação
+                        </button>
+                      )}
                       <button className="btn-icon" style={{ color: "var(--err)" }}
-                        onClick={() => handleDeleteNVR(nvr.id, nvr.name)}>
+                        onClick={() => handleDeleteEquipamento(eq.id, eq.name)}>
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -286,22 +309,44 @@ export default function ClientDetail() {
         </div>
       )}
 
-      {/* NVR Modal */}
-      {showNVRModal && (
-        <Modal title="Adicionar NVR" onClose={() => setShowNVRModal(false)}>
-          {(["name","ip","username","password"] as const).map(f => (
+      {/* Modal — Adicionar Equipamento */}
+      {showEqModal && (
+        <Modal title="Adicionar Equipamento" onClose={() => setShowEqModal(false)}>
+          {/* Tipo */}
+          <div className="form-group">
+            <label className="form-label">Tipo de Equipamento *</label>
+            <select className="form-input" value={eqForm.tipo}
+              onChange={e => setEqForm({ ...eqForm, tipo: e.target.value as TipoEquipamento, pasta_origem: "" })}>
+              {TIPOS.map(t => <option key={t} value={t}>{TIPO_ICONE[t]} {t}</option>)}
+            </select>
+          </div>
+          {/* Campos comuns */}
+          {(["name", "ip", "username", "password"] as const).map(f => (
             <div className="form-group" key={f}>
               <label className="form-label">
                 {f === "name" ? "Nome" : f === "ip" ? "Endereço IP" : f === "username" ? "Usuário" : "Senha"}
               </label>
               <input className="form-input" type={f === "password" ? "password" : "text"}
-                placeholder={f === "name" ? "NVR_Loja1" : f === "ip" ? "192.168.1.100" : ""}
-                value={nvrForm[f]} onChange={e => setNvrForm({ ...nvrForm, [f]: e.target.value })} />
+                placeholder={f === "name" ? `${eqForm.tipo}_Cliente1` : f === "ip" ? "192.168.1.100" : ""}
+                value={eqForm[f]} onChange={e => setEqForm({ ...eqForm, [f]: e.target.value })} />
             </div>
           ))}
+          {/* Campo extra para OLT */}
+          {eqForm.tipo === "OLT" && (
+            <div className="form-group">
+              <label className="form-label">Pasta de Origem dos Backups (UNM2000) *</label>
+              <input className="form-input" type="text"
+                placeholder="C:\Users\Helena\Documents"
+                value={eqForm.pasta_origem}
+                onChange={e => setEqForm({ ...eqForm, pasta_origem: e.target.value })} />
+              <span style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
+                Pasta onde o UNM2000 exporta os arquivos de backup (.zip)
+              </span>
+            </div>
+          )}
           <div className="flex gap-3 mt-4" style={{ justifyContent: "flex-end" }}>
-            <button className="btn btn-secondary" onClick={() => setShowNVRModal(false)}>Cancelar</button>
-            <button className="btn btn-primary" onClick={handleAddNVR} disabled={saving}>
+            <button className="btn btn-secondary" onClick={() => setShowEqModal(false)}>Cancelar</button>
+            <button className="btn btn-primary" onClick={handleAddEquipamento} disabled={saving}>
               {saving ? <span className="spinner spinner-sm" /> : <><Plus size={15} /> Adicionar</>}
             </button>
           </div>

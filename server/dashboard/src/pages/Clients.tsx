@@ -85,7 +85,7 @@ export default function Clients() {
               <tr>
                 <th>Cliente</th>
                 <th>Status</th>
-                <th>NVRs</th>
+                <th>Equipamentos</th>
                 <th>Horário Backup</th>
                 <th>Último Backup</th>
                 <th>API Key</th>
