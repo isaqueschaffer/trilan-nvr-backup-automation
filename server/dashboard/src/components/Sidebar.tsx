@@ -1,4 +1,4 @@
-﻿import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
   LayoutDashboard, Users, Archive, Settings, LogOut, Server
@@ -25,8 +25,8 @@ export default function Sidebar() {
             <Server size={18} color="white" />
           </div>
           <div className="sidebar-logo-text">
-            <span className="sidebar-logo-title">TRILAN NVR</span>
-            <span className="sidebar-logo-sub">BACKUP MANAGER</span>
+            <span className="sidebar-logo-title">TRILAN</span>
+            <span className="sidebar-logo-sub">BACKUPS</span>
           </div>
         </div>
       </div>

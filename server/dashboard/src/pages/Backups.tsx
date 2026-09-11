@@ -117,7 +117,7 @@ export default function Backups() {
                   <th>Cliente</th>
                   <th>Data/Hora</th>
                   <th>Status</th>
-                  <th>NVRs</th>
+                  <th>Equipamentos</th>
                   <th>ZIP</th>
                   <th>Email</th>
                   <th>Origem</th>
