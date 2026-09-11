@@ -76,7 +76,7 @@ export default function ClientDetail() {
   const [editForm, setEditForm] = useState<Partial<Client> & { zip_password?: string }>({});
   const [saving, setSaving] = useState(false);
 
-  const TIPOS: TipoEquipamento[] = ["NVR", "OLT", "ONU", "PABX"];
+  const TIPOS: TipoEquipamento[] = ["NVR", "OLT"];
 
   const TIPO_ICONE: Record<string, string> = {
     NVR: "📹", OLT: "🔌", ONU: "📡", PABX: "☎️",
@@ -95,11 +95,14 @@ export default function ClientDetail() {
   useEffect(() => { load(); }, [id]);
 
   const handleAddEquipamento = async () => {
-    if (!eqForm.name || !eqForm.ip || !eqForm.username || !eqForm.password) {
-      toast("Preencha todos os campos obrigatórios.", "error"); return;
+    if (!eqForm.name) {
+      toast("Preencha o nome do equipamento.", "error"); return;
+    }
+    if (eqForm.tipo === "NVR" && (!eqForm.ip || !eqForm.username || !eqForm.password)) {
+      toast("Para NVR, preencha IP, usuário e senha.", "error"); return;
     }
     if (eqForm.tipo === "OLT" && !eqForm.pasta_origem) {
-      toast("Para OLT, informe a pasta de origem dos backups.", "error"); return;
+      toast("Para OLT, informe a pasta de origem dos backups (UNM2000).", "error"); return;
     }
     setSaving(true);
     try {
@@ -258,7 +261,13 @@ export default function ClientDetail() {
                     </span>
                   </td>
                   <td style={{ fontWeight: 600, color: "var(--text-primary)" }}>{eq.name}</td>
-                  <td className="font-mono text-sm">{eq.ip}</td>
+                  <td className="font-mono text-sm">
+                    {eq.tipo === "OLT"
+                      ? <span title="Pasta de origem (UNM2000)" style={{ color: "var(--text-muted)", fontSize: 12 }}>
+                          📁 {(eq.config_extra as any)?.pasta_origem || "—"}
+                        </span>
+                      : eq.ip}
+                  </td>
                   <td className="text-secondary">{eq.username}</td>
                   <td>
                     <div className="flex items-center gap-2">
@@ -320,17 +329,25 @@ export default function ClientDetail() {
               {TIPOS.map(t => <option key={t} value={t}>{TIPO_ICONE[t]} {t}</option>)}
             </select>
           </div>
-          {/* Campos comuns */}
-          {(["name", "ip", "username", "password"] as const).map(f => (
-            <div className="form-group" key={f}>
-              <label className="form-label">
-                {f === "name" ? "Nome" : f === "ip" ? "Endereço IP" : f === "username" ? "Usuário" : "Senha"}
-              </label>
-              <input className="form-input" type={f === "password" ? "password" : "text"}
-                placeholder={f === "name" ? `${eqForm.tipo}_Cliente1` : f === "ip" ? "192.168.1.100" : ""}
-                value={eqForm[f]} onChange={e => setEqForm({ ...eqForm, [f]: e.target.value })} />
-            </div>
-          ))}
+          {/* Campos comuns — IP/usuário/senha só para NVR */}
+          {eqForm.tipo === "NVR" && (
+            (["ip", "username", "password"] as const).map(f => (
+              <div className="form-group" key={f}>
+                <label className="form-label">
+                  {f === "ip" ? "Endereço IP" : f === "username" ? "Usuário" : "Senha"}
+                </label>
+                <input className="form-input" type={f === "password" ? "password" : "text"}
+                  placeholder={f === "ip" ? "192.168.1.100" : ""}
+                  value={eqForm[f]} onChange={e => setEqForm({ ...eqForm, [f]: e.target.value })} />
+              </div>
+            ))
+          )}
+          <div className="form-group">
+            <label className="form-label">Nome *</label>
+            <input className="form-input" type="text"
+              placeholder={`${eqForm.tipo}_Cliente1`}
+              value={eqForm.name} onChange={e => setEqForm({ ...eqForm, name: e.target.value })} />
+          </div>
           {/* Campo extra para OLT */}
           {eqForm.tipo === "OLT" && (
             <div className="form-group">
