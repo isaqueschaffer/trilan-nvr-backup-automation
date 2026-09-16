@@ -149,7 +149,7 @@ def processar_olt(
         )
 
     logging.error(
-        f"[OLT] Fabricante teste não suportado: {fabricante}"
+        f"[OLT] Fabricante não suportado: {fabricante}"
     )
 
     return {
@@ -160,6 +160,7 @@ def processar_olt(
         "status": "ERRO",
         "cameras": None,
     }
+
 
 def processar_equipamento(equipamento: dict, zip_password: str, pasta_data: Path) -> dict:
     """

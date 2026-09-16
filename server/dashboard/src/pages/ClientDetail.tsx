@@ -465,7 +465,6 @@ export default function ClientDetail() {
             <>
               <div className="form-group">
                 <label className="form-label">Sistema da OLT *</label>
-
                 <select
                   className="form-input"
                   value={eqForm.fabricante_olt}
@@ -567,128 +566,120 @@ export default function ClientDetail() {
                 </span>
               </div>
             </>
-          )}         <div className="flex gap-3 mt-4" style={{ justifyContent: "flex-end" }}>
-            <button className="btn btn-secondary" onClick={() => setShowEqModal(false)}>
-              Cancelar
-            </button>
+          )}
+          <div className="flex gap-3 mt-4" style={{ justifyContent: "flex-end" }}>
+            <button className="btn btn-secondary" onClick={() => setShowEqModal(false)}>Cancelar</button>
             <button className="btn btn-primary" onClick={handleAddEquipamento} disabled={saving}>
               {saving ? <span className="spinner spinner-sm" /> : <><Plus size={15} /> Adicionar</>}
             </button>
           </div>
-        </Modal >
-      )
-      }
+        </Modal>
+      )}
 
       {/* ── Modal: Editar Cliente ── */}
-      {
-        showEditModal && (
-          <Modal title="Editar Cliente" onClose={() => setShowEditModal(false)}>
-            <div className="form-group">
-              <label className="form-label">Nome</label>
-              <input className="form-input" value={editForm.name || ""}
-                onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Horário do Backup Automático</label>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <div>
-                  <label className="form-label" style={{ fontSize: 11 }}>Hora (0-23)</label>
-                  <input className="form-input" type="number" min={0} max={23} value={editForm.backup_hour ?? 2}
-                    onChange={e => setEditForm({ ...editForm, backup_hour: +e.target.value })} />
-                </div>
-                <div>
-                  <label className="form-label" style={{ fontSize: 11 }}>Minuto (0-59)</label>
-                  <input className="form-input" type="number" min={0} max={59} value={editForm.backup_minute ?? 0}
-                    onChange={e => setEditForm({ ...editForm, backup_minute: +e.target.value })} />
-                </div>
+      {showEditModal && (
+        <Modal title="Editar Cliente" onClose={() => setShowEditModal(false)}>
+          <div className="form-group">
+            <label className="form-label">Nome</label>
+            <input className="form-input" value={editForm.name || ""}
+              onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Horário do Backup Automático</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <label className="form-label" style={{ fontSize: 11 }}>Hora (0-23)</label>
+                <input className="form-input" type="number" min={0} max={23} value={editForm.backup_hour ?? 2}
+                  onChange={e => setEditForm({ ...editForm, backup_hour: +e.target.value })} />
+              </div>
+              <div>
+                <label className="form-label" style={{ fontSize: 11 }}>Minuto (0-59)</label>
+                <input className="form-input" type="number" min={0} max={59} value={editForm.backup_minute ?? 0}
+                  onChange={e => setEditForm({ ...editForm, backup_minute: +e.target.value })} />
               </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">E-mails de Notificação (separados por vírgula)</label>
-              <input className="form-input" value={editForm.email_to as unknown as string || ""}
-                onChange={e => setEditForm({ ...editForm, email_to: e.target.value as unknown as string[] })} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Nova senha do ZIP <span style={{ fontWeight: 400, color: "var(--text-muted)" }}>(vazio = manter atual)</span></label>
-              <input className="form-input" type="password" value={editForm.zip_password || ""}
-                onChange={e => setEditForm({ ...editForm, zip_password: e.target.value })} />
-            </div>
-            <div className="flex gap-3 mt-4" style={{ justifyContent: "flex-end" }}>
-              <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>Cancelar</button>
-              <button className="btn btn-primary" onClick={handleEditSave} disabled={saving}>
-                {saving ? <span className="spinner spinner-sm" /> : "Salvar"}
-              </button>
-            </div>
-          </Modal>
-        )
-      }
+          </div>
+          <div className="form-group">
+            <label className="form-label">E-mails de Notificação (separados por vírgula)</label>
+            <input className="form-input" value={editForm.email_to as unknown as string || ""}
+              onChange={e => setEditForm({ ...editForm, email_to: e.target.value as unknown as string[] })} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Nova senha do ZIP <span style={{ fontWeight: 400, color: "var(--text-muted)" }}>(vazio = manter atual)</span></label>
+            <input className="form-input" type="password" value={editForm.zip_password || ""}
+              onChange={e => setEditForm({ ...editForm, zip_password: e.target.value })} />
+          </div>
+          <div className="flex gap-3 mt-4" style={{ justifyContent: "flex-end" }}>
+            <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>Cancelar</button>
+            <button className="btn btn-primary" onClick={handleEditSave} disabled={saving}>
+              {saving ? <span className="spinner spinner-sm" /> : "Salvar"}
+            </button>
+          </div>
+        </Modal>
+      )}
 
       {/* ── Modal: Nova API Key ── */}
-      {
-        rotatedKey && (
-          <Modal title="Nova API Key gerada" onClose={() => setRotatedKey(null)}>
-            <div style={{
-              background: "var(--warn-bg)", border: "1px solid rgba(245,158,11,0.3)",
-              borderRadius: "var(--radius-sm)", padding: "12px 16px", marginBottom: 20,
-              color: "var(--warn)", fontSize: 13
-            }}>
-              ⚠️ Copie agora. Não será exibida novamente. Atualize o agent.conf no cliente.
-            </div>
-            <div className="api-key-display" style={{ borderColor: "rgba(245,158,11,0.4)" }}>
-              <span className="api-key-value" style={{ color: "var(--warn)" }}>{rotatedKey}</span>
-              <button className="btn-icon" onClick={() => copyText(rotatedKey)}><Copy size={14} /></button>
-            </div>
-            <button className="btn btn-primary mt-4 w-full" style={{ justifyContent: "center" }}
-              onClick={() => setRotatedKey(null)}>Entendi</button>
-          </Modal>
-        )
-      }
+      {rotatedKey && (
+        <Modal title="Nova API Key gerada" onClose={() => setRotatedKey(null)}>
+          <div style={{
+            background: "var(--warn-bg)", border: "1px solid rgba(245,158,11,0.3)",
+            borderRadius: "var(--radius-sm)", padding: "12px 16px", marginBottom: 20,
+            color: "var(--warn)", fontSize: 13
+          }}>
+            ⚠️ Copie agora. Não será exibida novamente. Atualize o agent.conf no cliente.
+          </div>
+          <div className="api-key-display" style={{ borderColor: "rgba(245,158,11,0.4)" }}>
+            <span className="api-key-value" style={{ color: "var(--warn)" }}>{rotatedKey}</span>
+            <button className="btn-icon" onClick={() => copyText(rotatedKey)}><Copy size={14} /></button>
+          </div>
+          <button className="btn btn-primary mt-4 w-full" style={{ justifyContent: "center" }}
+            onClick={() => setRotatedKey(null)}>Entendi</button>
+        </Modal>
+      )}
 
       {/* ── Modal: Status de Gravação ── */}
-      {
-        showRecordingModal.show && (
-          <Modal wide={true} title={`Gravação — ${showRecordingModal.nvrName} (${fmtDate(client.last_backup_at)})`}
-            onClose={() => setShowRecordingModal({ show: false, nvrName: "", cameras: [] })}>
-            {showRecordingModal.cameras.length === 0 ? (
-              <div className="empty-state">Sem dados de gravação disponíveis.</div>
-            ) : (
-              <div className="table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Câmera</th>
-                      <th>Rede</th>
-                      <th>Gravação</th>
-                      <th>Dias Gravados</th>
-                      <th>Mapa (15 dias)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {showRecordingModal.cameras.map((cam, i) => {
-                      let rede = cam.status_comunicacao;
-                      if (!rede) rede = cam.online ? "ONLINE" : (cam.online === false ? "OFFLINE" : "DESCONHECIDO");
-                      let gravacao = cam.status_gravacao;
-                      if (!gravacao) {
-                        const gravouHoje = cam.mapa ? cam.mapa.endsWith("█") : cam.total_dias > 0;
-                        gravacao = gravouHoje ? "COM_GRAVACAO" : "SEM_GRAVACAO";
-                      }
-                      return (
-                        <tr key={i}>
-                          <td>{cam.nome || `Canal ${cam.canal}`}</td>
-                          <td><StatusBadge status={rede} /></td>
-                          <td><StatusBadge status={gravacao} /></td>
-                          <td>{cam.total_dias || 0}/15</td>
-                          <td><MiniCalendar mapStr={cam.mapa || ""} referenceDate={client.last_backup_at} /></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </Modal>
-        )
-      }
+      {showRecordingModal.show && (
+        <Modal wide={true} title={`Gravação — ${showRecordingModal.nvrName} (${fmtDate(client.last_backup_at)})`}
+          onClose={() => setShowRecordingModal({ show: false, nvrName: "", cameras: [] })}>
+          {showRecordingModal.cameras.length === 0 ? (
+            <div className="empty-state">Sem dados de gravação disponíveis.</div>
+          ) : (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Câmera</th>
+                    <th>Rede</th>
+                    <th>Gravação</th>
+                    <th>Dias Gravados</th>
+                    <th>Mapa (15 dias)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {showRecordingModal.cameras.map((cam, i) => {
+                    let rede = cam.status_comunicacao;
+                    if (!rede) rede = cam.online ? "ONLINE" : (cam.online === false ? "OFFLINE" : "DESCONHECIDO");
+                    let gravacao = cam.status_gravacao;
+                    if (!gravacao) {
+                      const gravouHoje = cam.mapa ? cam.mapa.endsWith("█") : cam.total_dias > 0;
+                      gravacao = gravouHoje ? "COM_GRAVACAO" : "SEM_GRAVACAO";
+                    }
+                    return (
+                      <tr key={i}>
+                        <td>{cam.nome || `Canal ${cam.canal}`}</td>
+                        <td><StatusBadge status={rede} /></td>
+                        <td><StatusBadge status={gravacao} /></td>
+                        <td>{cam.total_dias || 0}/15</td>
+                        <td><MiniCalendar mapStr={cam.mapa || ""} referenceDate={client.last_backup_at} /></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Modal>
+      )}
     </>
   );
 }
