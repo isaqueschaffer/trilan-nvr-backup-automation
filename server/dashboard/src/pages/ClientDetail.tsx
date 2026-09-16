@@ -163,9 +163,9 @@ export default function ClientDetail() {
 
   const [showEqModal, setShowEqModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showRecordingModal, setShowRecordingModal] = useState<{show: boolean, nvrName: string, cameras: any[]}>({show: false, nvrName: "", cameras: []});
+  const [showRecordingModal, setShowRecordingModal] = useState<{ show: boolean, nvrName: string, cameras: any[] }>({ show: false, nvrName: "", cameras: [] });
   const [rotatedKey, setRotatedKey] = useState<string | null>(null);
-  const [eqForm, setEqForm] = useState({ tipo: "NVR" as TipoEquipamento, name: "", ip: "", username: "", password: "", pasta_origem: "" });
+  const [eqForm, setEqForm] = useState({ tipo: "NVR" as TipoEquipamento, name: "", ip: "", username: "", password: "", pasta_origem: "", fabricante_olt: "UNM2000" });
   const [editForm, setEditForm] = useState<Partial<Client> & { zip_password?: string }>({});
   const [saving, setSaving] = useState(false);
 
@@ -189,21 +189,47 @@ export default function ClientDetail() {
     if (eqForm.tipo === "NVR" && (!eqForm.ip || !eqForm.username || !eqForm.password)) {
       toast("Para NVR, preencha IP, usuário e senha.", "error"); return;
     }
-    if (eqForm.tipo === "OLT" && !eqForm.pasta_origem) {
-      toast("Para OLT, informe a pasta de origem dos backups (UNM2000).", "error"); return;
+    if (eqForm.tipo === "OLT" && !eqForm.fabricante_olt) {
+      toast("Selecione o sistema da OLT.", "error");
+      return;
     }
+
+    if (eqForm.tipo === "OLT" && eqForm.fabricante_olt === "UNM2000" && !eqForm.pasta_origem) {
+      toast("Para UNM2000, informe a pasta de origem dos backups.", "error");
+      return;
+    }
+
+    if (eqForm.tipo === "OLT" && eqForm.fabricante_olt === "VSOL" && (!eqForm.pasta_origem || !eqForm.username || !eqForm.password)) {
+      toast("Para VSOL, preencha IP, usuário e senha.", "error");
+      return;
+    }
+
     setSaving(true);
     try {
       await createEquipamento(id!, {
-        tipo: eqForm.tipo, name: eqForm.name, ip: eqForm.ip,
-        username: eqForm.username, password: eqForm.password,
-        config_extra: eqForm.tipo === "OLT" ? { pasta_origem: eqForm.pasta_origem } : null,
+        tipo: eqForm.tipo,
+        name: eqForm.name,
+        ip: eqForm.tipo === "NVR" ? eqForm.ip : (
+          eqForm.fabricante_olt === "VSOL" ? eqForm.pasta_origem : eqForm.ip
+        ),
+        username: eqForm.username,
+        password: eqForm.password,
+        config_extra: eqForm.tipo === "OLT"
+          ? {
+            ...(eqForm.fabricante_olt === "UNM2000"
+              ? { pasta_origem: eqForm.pasta_origem }
+              : {}),
+            fabricante_olt: eqForm.fabricante_olt
+          }
+          : null,
       });
+
       toast("Equipamento adicionado!", "success");
       setShowEqModal(false);
-      setEqForm({ tipo: "NVR", name: "", ip: "", username: "", password: "", pasta_origem: "" });
+      setEqForm({ tipo: "NVR", name: "", ip: "", username: "", password: "", pasta_origem: "", fabricante_olt: "UNM2000" });
       load();
-    } catch { toast("Erro ao adicionar equipamento.", "error"); }
+    }
+    catch { toast("Erro ao adicionar equipamento.", "error"); }
     finally { setSaving(false); }
   };
 
@@ -404,7 +430,7 @@ export default function ClientDetail() {
           <div className="form-group">
             <label className="form-label">Tipo de Equipamento *</label>
             <select className="form-input" value={eqForm.tipo}
-              onChange={e => setEqForm({ ...eqForm, tipo: e.target.value as TipoEquipamento, pasta_origem: "" })}>
+              onChange={e => setEqForm({ ...eqForm, tipo: e.target.value as TipoEquipamento, pasta_origem: "", fabricante_olt: "UNM2000" })}>
               {TIPOS.map(t => <option key={t} value={t}>{TIPO_ICONE[t]} {t}</option>)}
             </select>
           </div>
@@ -436,15 +462,110 @@ export default function ClientDetail() {
             </>
           )}
           {eqForm.tipo === "OLT" && (
-            <div className="form-group">
-              <label className="form-label">Pasta de Origem dos Backups (UNM2000) *</label>
-              <input className="form-input" type="text" placeholder="C:\Users\Helena\Documents"
-                value={eqForm.pasta_origem}
-                onChange={e => setEqForm({ ...eqForm, pasta_origem: e.target.value })} />
-              <span style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, display: "block" }}>
-                Pasta onde o UNM2000 exporta os arquivos de backup (.zip)
-              </span>
-            </div>
+            <>
+              <div className="form-group">
+                <label className="form-label">Sistema da OLT *</label>
+                <select
+                  className="form-input"
+                  value={eqForm.fabricante_olt}
+                  onChange={e =>
+                    setEqForm({
+                      ...eqForm,
+                      fabricante_olt: e.target.value
+                    })
+                  }
+                >
+                  <option value="UNM2000">🔵 UNM2000</option>
+                  <option value="VSOL">🟢 VSOL</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">
+                  {eqForm.fabricante_olt === "VSOL"
+                    ? "Endereço IP da OLT *"
+                    : "Pasta de Origem dos Backups *"}
+                </label>
+
+                <input
+                  className="form-input"
+                  type="text"
+                  placeholder={
+                    eqForm.fabricante_olt === "VSOL"
+                      ? "192.168.1.100"
+                      : "C:\\Users\\Helena\\Documents"
+                  }
+                  value={eqForm.pasta_origem}
+                  onChange={e =>
+                    setEqForm({
+                      ...eqForm,
+                      pasta_origem: e.target.value
+                    })
+                  }
+                />
+
+                {eqForm.fabricante_olt === "VSOL" && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 12,
+                      marginTop: 12
+                    }}
+                  >
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label className="form-label">
+                        Usuário *
+                      </label>
+
+                      <input
+                        className="form-input"
+                        type="text"
+                        value={eqForm.username}
+                        onChange={e =>
+                          setEqForm({
+                            ...eqForm,
+                            username: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label className="form-label">
+                        Senha *
+                      </label>
+
+                      <input
+                        className="form-input"
+                        type="password"
+                        value={eqForm.password}
+                        onChange={e =>
+                          setEqForm({
+                            ...eqForm,
+                            password: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    marginTop: 4,
+                    display: "block"
+                  }}
+                >
+                  {eqForm.fabricante_olt === "UNM2000"
+                    ? "Pasta onde o UNM2000 exporta os arquivos de backup (.zip)."
+                    : "Endereço IP, usuário e senha utilizados para acessar a VSOL."
+                  }
+                </span>
+              </div>
+            </>
           )}
           <div className="flex gap-3 mt-4" style={{ justifyContent: "flex-end" }}>
             <button className="btn btn-secondary" onClick={() => setShowEqModal(false)}>Cancelar</button>

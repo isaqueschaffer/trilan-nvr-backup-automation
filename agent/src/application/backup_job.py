@@ -12,6 +12,7 @@ from src.core.config import load_conf, DIR_AGENT
 from src.application.api_client import fetch_server_config, post_report, upload_zip
 from src.nvr.factory import verificar_gravacao_nvr
 from src.olt.unm2000 import realizar_backup_olt
+from src.olt.vsol import realizar_backup_vsol
 from src.backup.crypto import gerar_secretkey
 from src.backup.downloader import baixar_arquivo
 from src.backup.archiver import criar_zip, data_hoje
@@ -99,9 +100,66 @@ def processar_nvr(equipamento: dict, zip_password: str, pasta_data: Path) -> dic
     return {"nome": nome, "status": status, "cameras": cameras_status}
 
 
-def processar_olt(equipamento: dict, pasta_data: Path) -> dict:
-    """Processa backup de OLT via UNM2000."""
-    return realizar_backup_olt(equipamento, pasta_data)
+def processar_olt(
+    equipamento: dict,
+    pasta_data: Path
+) -> dict:
+
+    tipo = (equipamento.get("tipo") or "").lower()
+
+    config_extra = equipamento.get("config_extra") or {}
+    if isinstance(config_extra, str):
+        try:
+            import json
+            config_extra = json.loads(config_extra)
+        except Exception:
+            config_extra = {}
+
+    fabricante = (
+        equipamento.get("fabricante")
+        or config_extra.get("fabricante_olt")
+        or config_extra.get("fabricante")
+        or ""
+    ).lower().strip()
+
+    # Fallback caso fabricante não venha explícito mas esteja no nome ou config
+    if not fabricante or fabricante == "olt":
+        nome_lower = (equipamento.get("name") or "").lower()
+        if "vsol" in nome_lower:
+            fabricante = "vsol"
+        elif "unm" in nome_lower or "huawei" in nome_lower:
+            fabricante = "unm2000"
+        elif "pasta_origem" in config_extra and config_extra.get("pasta_origem"):
+            fabricante = "unm2000"
+
+    logging.info(
+        f"[OLT] Tipo={tipo} | Fabricante={fabricante}"
+    )
+
+    if fabricante == "vsol":
+        return realizar_backup_vsol(
+            equipamento,
+            pasta_data
+        )
+
+    if fabricante in ("unm", "unm2000", "huawei"):
+        return realizar_backup_olt(
+            equipamento,
+            pasta_data
+        )
+
+    logging.error(
+        f"[OLT] Fabricante não suportado: {fabricante}"
+    )
+
+    return {
+        "nome": equipamento.get(
+            "name",
+            "OLT_desconhecida"
+        ),
+        "status": "ERRO",
+        "cameras": None,
+    }
 
 
 def processar_equipamento(equipamento: dict, zip_password: str, pasta_data: Path) -> dict:
