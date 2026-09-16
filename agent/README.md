@@ -22,7 +22,7 @@ conectado a rede local dos NVRs.
 
    `ini
    [server]
-   url = https://hd208ec5kxz.sn.mynetname.net:7001
+   url = http://hd208ec5kxz.sn.mynetname.net:7001
 
    [auth]
    client_id = COLE_O_ID_DO_PAINEL
