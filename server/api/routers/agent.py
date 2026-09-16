@@ -110,7 +110,7 @@ async def upload_backup_zip(
     date_str = (backup.started_at or datetime.utcnow()).strftime("%d-%m-%Y")
     data = await file.read()
 
-    zip_path = save_zip(client.id, date_str, file.filename or f"backup_{date_str}.zip", data)
+    zip_path = save_zip(client.id, client.name, date_str, file.filename or f"backup_{date_str}.zip", data)
 
     backup.zip_filename = zip_path.name
     backup.zip_size = len(data)
