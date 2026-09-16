@@ -105,40 +105,51 @@ def processar_olt(
     pasta_data: Path
 ) -> dict:
 
-    """
-    Processa backup de OLT.
+    tipo = (equipamento.get("tipo") or "").lower()
 
-    O tipo da OLT é definido pela configuração
-    do equipamento.
-    """
+    config_extra = equipamento.get("config_extra") or {}
+    if isinstance(config_extra, str):
+        try:
+            import json
+            config_extra = json.loads(config_extra)
+        except Exception:
+            config_extra = {}
 
     fabricante = (
         equipamento.get("fabricante")
-        or equipamento.get("tipo")
+        or config_extra.get("fabricante_olt")
+        or config_extra.get("fabricante")
         or ""
-    ).lower()
+    ).lower().strip()
+
+    # Fallback caso fabricante não venha explícito mas esteja no nome ou config
+    if not fabricante or fabricante == "olt":
+        nome_lower = (equipamento.get("name") or "").lower()
+        if "vsol" in nome_lower:
+            fabricante = "vsol"
+        elif "unm" in nome_lower or "huawei" in nome_lower:
+            fabricante = "unm2000"
+        elif "pasta_origem" in config_extra and config_extra.get("pasta_origem"):
+            fabricante = "unm2000"
+
+    logging.info(
+        f"[OLT] Tipo={tipo} | Fabricante={fabricante}"
+    )
 
     if fabricante == "vsol":
-
         return realizar_backup_vsol(
             equipamento,
             pasta_data
         )
 
-    if fabricante in (
-        "unm",
-        "unm2000",
-        "huawei",
-    ):
-
-        return realizar_backup_unm(
+    if fabricante in ("unm", "unm2000", "huawei"):
+        return realizar_backup_olt(
             equipamento,
             pasta_data
         )
 
     logging.error(
-        f"[OLT] Fabricante/tipo não suportado: "
-        f"{fabricante}"
+        f"[OLT] Fabricante teste não suportado: {fabricante}"
     )
 
     return {
@@ -149,7 +160,6 @@ def processar_olt(
         "status": "ERRO",
         "cameras": None,
     }
-
 
 def processar_equipamento(equipamento: dict, zip_password: str, pasta_data: Path) -> dict:
     """
