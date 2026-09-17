@@ -200,7 +200,7 @@ def run_backup(trigger: str = "scheduled"):
 
     # Aceita tanto o campo novo (equipamentos) quanto o legado (nvrs)
     equipamentos = server_cfg.get("equipamentos") or server_cfg.get("nvrs") or []
-    zip_password = server_cfg.get("zip_password") or "TrilanBackup2024"
+    zip_password = server_cfg.get("zip_password") or "Tr1l@n133"
     client_name = server_cfg["client_name"]
 
     if not equipamentos:
