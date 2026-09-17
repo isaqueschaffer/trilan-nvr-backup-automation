@@ -3,13 +3,20 @@ Agent-facing router.
 Windows agent authenticates with X-Client-ID + X-API-Key headers.
 """
 from datetime import datetime
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 
 from auth import get_current_client
 from database import get_db
 from models import Client, Backup, NVR
-from schemas import AgentConfigResponse, AgentEquipamento, BackupReportCreate, BackupReportResponse, PingResponse
+from schemas import (
+    AgentConfigResponse,
+    AgentEquipamento,
+    BackupReportCreate,
+    BackupReportResponse,
+    PingResponse,
+    TIPOS_EQUIPAMENTO,
+)
 from services.crypto_service import decrypt
 from services.storage_service import save_zip
 from services.email_service import send_backup_report
@@ -96,6 +103,7 @@ def receive_backup_report(
 async def upload_backup_zip(
     backup_id: str,
     request: Request,
+    device_type: str = Query("NVR", description="Tipo de equipamento: NVR, OLT, ONU, PABX"),
     file: UploadFile = File(...),
     client: Client = Depends(get_current_client),
     db: Session = Depends(get_db),
@@ -107,13 +115,29 @@ async def upload_backup_zip(
     if not backup:
         raise HTTPException(status_code=404, detail="Backup record not found")
 
+    clean_device_type = device_type.strip().upper()
+    if clean_device_type not in TIPOS_EQUIPAMENTO:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tipo de equipamento inválido: '{clean_device_type}'. Tipos permitidos: {TIPOS_EQUIPAMENTO}",
+        )
+
     date_str = (backup.started_at or datetime.utcnow()).strftime("%d-%m-%Y")
     data = await file.read()
 
-    zip_path = save_zip(client.id, date_str, file.filename or f"backup_{date_str}.zip", data)
+    filename = file.filename or f"backup_{clean_device_type.lower()}_{date_str}.zip"
+
+    zip_path = save_zip(
+        client_id=client.id,
+        client_name=client.name,
+        date_str=date_str,
+        device_type=clean_device_type,
+        filename=filename,
+        data=data,
+    )
 
     backup.zip_filename = zip_path.name
-    backup.zip_size = len(data)
+    backup.zip_size = (backup.zip_size or 0) + len(data)
     db.commit()
 
     # Send email
@@ -130,7 +154,7 @@ async def upload_backup_zip(
         base_url=str(request.base_url),
         public_url=settings.PUBLIC_URL,
     )
-    backup.email_sent = email_sent
+    backup.email_sent = email_sent or backup.email_sent
     db.commit()
 
     return {"status": "ok", "zip_size": len(data), "email_sent": email_sent}

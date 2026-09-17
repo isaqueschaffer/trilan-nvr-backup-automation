@@ -6,8 +6,11 @@ from pathlib import Path
 def data_hoje() -> str:
     return datetime.now().strftime("%d-%m-%Y")
 
-def criar_zip(pasta: Path, cliente: str, senha: str) -> Path | None:
-    zip_path = pasta / f"BACKUP_{cliente.upper().replace(' ','_')}_{data_hoje()}.zip"
+def criar_zip(pasta: Path, nome_ou_cliente: str, senha: str) -> Path | None:
+    if nome_ou_cliente.endswith(".zip"):
+        zip_path = pasta / nome_ou_cliente
+    else:
+        zip_path = pasta / f"BACKUP_{nome_ou_cliente.upper().replace(' ','_')}_{data_hoje()}.zip"
     try:
         with pyzipper.AESZipFile(zip_path, "w", compression=pyzipper.ZIP_DEFLATED,
                                   encryption=pyzipper.WZ_AES) as zf:

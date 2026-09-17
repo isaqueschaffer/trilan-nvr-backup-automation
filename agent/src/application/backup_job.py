@@ -221,20 +221,54 @@ def run_backup(trigger: str = "scheduled"):
     TEMP_DIR.mkdir(parents=True)
 
     started_at = datetime.now()
-    resultados = [processar_equipamento(eq, zip_password, TEMP_DIR) for eq in equipamentos]
+    resultados = []
+    zips_para_upload = []
+
+    for eq in equipamentos:
+        tipo = (eq.get("tipo") or "NVR").upper()
+        nome = eq.get("name", "equipamento")
+        nome_safe = nome.replace(" ", "_")
+
+        # Diretório temporário isolado por equipamento
+        pasta_eq = TEMP_DIR / f"{tipo}_{nome_safe}"
+        pasta_eq.mkdir(parents=True, exist_ok=True)
+
+        res = processar_equipamento(eq, zip_password, pasta_eq)
+        res["tipo"] = tipo
+        resultados.append(res)
+
+        # Os processadores criam a subpasta pasta_eq / nome_safe (ou salvam direto em pasta_eq)
+        pasta_dados = pasta_eq / nome_safe
+        pasta_alvo = pasta_dados if pasta_dados.exists() else pasta_eq
+
+        arquivos = [f for f in pasta_alvo.rglob("*") if f.is_file() and f.name != f"backup_{nome_safe.lower()}.zip"]
+        if arquivos:
+            zip_filename = f"backup_{nome_safe.lower()}.zip"
+            zip_path = criar_zip(pasta_alvo, zip_filename, zip_password)
+            if zip_path:
+                zips_para_upload.append((tipo, zip_path))
+
     finished_at = datetime.now()
 
     for r in resultados:
         icone = {"OK": "OK", "PARCIAL": "PARCIAL", "ERRO": "ERRO",
                  "SEM_ARQUIVOS": "SEM_ARQUIVOS", "JA_PROCESSADO": "JA_PROCESSADO",
                  "TIPO_NAO_SUPORTADO": "SKIP"}.get(r["status"], "?")
-        logging.info(f"  {icone} {r['nome']}")
-
-    zip_path = criar_zip(TEMP_DIR, client_name, zip_password)
+        logging.info(f"  {icone} [{r.get('tipo', 'NVR')}] {r['nome']}")
 
     backup_id = post_report(conf, started_at, finished_at, resultados, trigger)
-    if backup_id and zip_path:
-        upload_zip(conf, backup_id, zip_path)
+    if backup_id:
+        if zips_para_upload:
+            for tipo_eq, zip_path in zips_para_upload:
+                logging.info(f"  Enviando ZIP [{tipo_eq}]: {zip_path.name}")
+                upload_zip(conf, backup_id, zip_path, device_type=tipo_eq)
+        else:
+            # Fallback se nenhum equipamento gerou zip individual (mas houve arquivos gerais)
+            todos_arquivos = [f for f in TEMP_DIR.rglob("*") if f.is_file() and f.suffix != ".zip"]
+            if todos_arquivos:
+                zip_path = criar_zip(TEMP_DIR, client_name, zip_password)
+                if zip_path:
+                    upload_zip(conf, backup_id, zip_path, device_type="NVR")
 
     shutil.rmtree(TEMP_DIR, ignore_errors=True)
     logging.info(f"\nBackup concluido em {(finished_at - started_at).total_seconds():.1f}s")
