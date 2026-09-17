@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchStats, fetchClients } from "../api/client";
 import { Stats, Client } from "../api/types";
@@ -38,33 +38,45 @@ export default function Overview() {
 
       {/* Stats */}
       <div className="stats-grid">
-        <div className="stat-card purple">
-          <div className="stat-label">Clientes Totais</div>
-          <div className="stat-value purple">{stats?.total_clients ?? "—"}</div>
-          <Users size={28} className="stat-icon" color="var(--accent)" />
+        <div className="stat-card">
+          <div className="stat-header">
+            <span className="stat-label">Clientes Totais</span>
+            <Users size={20} className="stat-icon" />
+          </div>
+          <div className="stat-value">{stats?.total_clients ?? "—"}</div>
+          <div className="stat-sub">clientes cadastrados</div>
         </div>
-        <div className="stat-card cyan">
-          <div className="stat-label">Ativos</div>
-          <div className="stat-value cyan">{stats?.active_clients ?? "—"}</div>
-          <CheckCircle size={28} className="stat-icon" color="var(--cyan)" />
+        <div className="stat-card">
+          <div className="stat-header">
+            <span className="stat-label">Ativos</span>
+            <CheckCircle size={20} className="stat-icon" />
+          </div>
+          <div className="stat-value">{stats?.active_clients ?? "—"}</div>
+          <div className="stat-sub">clientes com backup ativo</div>
         </div>
-        <div className="stat-card green">
-          <div className="stat-label">Backups OK Hoje</div>
-          <div className="stat-value green">{stats?.backups_ok ?? "—"}</div>
-          <Archive size={28} className="stat-icon" color="var(--ok)" />
+        <div className="stat-card">
+          <div className="stat-header">
+            <span className="stat-label">Backups OK Hoje</span>
+            <Archive size={20} className="stat-icon" />
+          </div>
+          <div className="stat-value value-ok">{stats?.backups_ok ?? "—"}</div>
+          <div className="stat-sub">arquivos enviados hoje</div>
         </div>
-        <div className="stat-card red">
-          <div className="stat-label">Erros Hoje</div>
-          <div className="stat-value red">{stats?.backups_error ?? "—"}</div>
-          <AlertCircle size={28} className="stat-icon" color="var(--err)" />
+        <div className="stat-card">
+          <div className="stat-header">
+            <span className="stat-label">Erros Hoje</span>
+            <AlertCircle size={20} className="stat-icon" />
+          </div>
+          <div className="stat-value" style={{ color: "var(--err)" }}>{stats?.backups_error ?? "—"}</div>
+          <div className="stat-sub">falhas identificadas hoje</div>
         </div>
       </div>
 
       {/* Client cards */}
-      <div className="section-title"><Users size={15} />Clientes</div>
+      <h2 className="section-title"><Users size={18} /> Clientes</h2>
       {clients.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">🏢</div>
+          <Users className="empty-icon" />
           <div>Nenhum cliente cadastrado ainda.</div>
           <button className="btn btn-primary mt-2" onClick={() => navigate("/clients")}>
             Cadastrar primeiro cliente
@@ -82,7 +94,7 @@ export default function Overview() {
                   <div>
                     <div className="client-name">{c.name}</div>
                     <div className="client-meta flex items-center gap-2">
-                      <Clock size={11} />
+                      <Clock size={12} />
                       {fmtSchedule(c.backup_hour, c.backup_minute)}
                     </div>
                   </div>
@@ -91,12 +103,12 @@ export default function Overview() {
               </div>
               <div className="client-stats">
                 <div className="client-stat-item">
-                  <div className="client-stat-label">NVRs</div>
+                  <div className="client-stat-label">Equipamentos</div>
                   <div className="client-stat-value">{c.nvr_count}</div>
                 </div>
                 <div className="client-stat-item">
                   <div className="client-stat-label">Último backup</div>
-                  <div className="client-stat-value" style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  <div className="client-stat-value" style={{ fontSize: 13, color: "var(--text-muted)", fontWeight: 500 }}>
                     {fmtDate(c.last_backup_at)}
                   </div>
                 </div>
