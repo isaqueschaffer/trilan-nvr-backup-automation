@@ -1,4 +1,4 @@
-﻿import { useState, FormEvent } from "react";
+import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Lock, Server } from "lucide-react";
@@ -28,8 +28,8 @@ export default function Login() {
           <div className="login-logo-icon">
             <Server size={28} color="white" />
           </div>
-          <div className="login-logo-title">TRILAN NVR</div>
-          <div className="login-logo-sub">Painel de Backup Centralizado</div>
+          <div className="login-logo-title">TRILAN BACKUPS</div>
+          <div className="login-logo-sub">Painel de Gerenciamento de Equipamentos</div>
         </div>
 
         {error && <div className="login-error">{error}</div>}

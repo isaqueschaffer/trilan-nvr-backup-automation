@@ -6,12 +6,16 @@ from pydantic import BaseModel, field_validator
 
 
 # ─────────────────────────────────────────────
-# NVR
+# Equipamento (antes chamado NVR)
 # ─────────────────────────────────────────────
+TIPOS_EQUIPAMENTO = ["NVR", "OLT", "ONU", "PABX"]
+
 class NVRBase(BaseModel):
+    tipo: str = "NVR"  # NVR, OLT, ONU, PABX
     name: str
     ip: str
     username: str
+    config_extra: Optional[Dict[str, Any]] = None
 
 
 class NVRCreate(NVRBase):
@@ -19,10 +23,12 @@ class NVRCreate(NVRBase):
 
 
 class NVRUpdate(BaseModel):
+    tipo: Optional[str] = None
     name: Optional[str] = None
     ip: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
+    config_extra: Optional[Dict[str, Any]] = None
 
 
 class NVRResponse(NVRBase):
@@ -31,6 +37,13 @@ class NVRResponse(NVRBase):
     last_recording_status: Optional[Any] = None
 
     model_config = {"from_attributes": True}
+
+
+# Alias para nomenclatura de equipamentos
+EquipamentoBase = NVRBase
+EquipamentoCreate = NVRCreate
+EquipamentoUpdate = NVRUpdate
+EquipamentoResponse = NVRResponse
 
 
 # ─────────────────────────────────────────────
@@ -122,11 +135,19 @@ class PaginatedBackups(BaseModel):
 # ─────────────────────────────────────────────
 # Agent (config payload sent to Windows agent)
 # ─────────────────────────────────────────────
-class AgentNVR(BaseModel):
+class AgentEquipamento(BaseModel):
+    """Representa qualquer equipamento enviado ao agente Windows."""
+    tipo: str  # NVR, OLT, ONU, PABX
     name: str
     ip: str
     username: str
     password: str  # decrypted — sent over HTTPS only
+    config_extra: Optional[Dict[str, Any]] = None
+
+
+# Mantido para compatibilidade com agentes mais antigos
+class AgentNVR(AgentEquipamento):
+    pass
 
 
 class AgentConfigResponse(BaseModel):
@@ -134,7 +155,8 @@ class AgentConfigResponse(BaseModel):
     backup_hour: int
     backup_minute: int
     zip_password: Optional[str]
-    nvrs: List[AgentNVR]
+    equipamentos: List[AgentEquipamento]
+    nvrs: List[AgentEquipamento] = []  # alias de compatibilidade — igual a equipamentos
 
 
 class PingResponse(BaseModel):

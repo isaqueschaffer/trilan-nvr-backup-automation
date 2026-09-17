@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchStats, fetchClients } from "../api/client";
 import { Stats, Client } from "../api/types";
@@ -91,7 +91,7 @@ export default function Overview() {
               </div>
               <div className="client-stats">
                 <div className="client-stat-item">
-                  <div className="client-stat-label">NVRs</div>
+                  <div className="client-stat-label">Equipamentos</div>
                   <div className="client-stat-value">{c.nvr_count}</div>
                 </div>
                 <div className="client-stat-item">

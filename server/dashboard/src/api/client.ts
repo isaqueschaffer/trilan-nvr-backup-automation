@@ -47,15 +47,21 @@ export const rotateKey = (id: string) =>
 export const restartAgent = (id: string) =>
   api.post(`/clients/${id}/restart-agent`).then((r) => r.data);
 
-// ── NVRs ──────────────────────────────────────────────────────
-export const fetchNVRs = (clientId: string) =>
-  api.get(`/clients/${clientId}/nvrs`).then((r) => r.data);
-export const createNVR = (clientId: string, data: Record<string, unknown>) =>
-  api.post(`/clients/${clientId}/nvrs`, data).then((r) => r.data);
-export const updateNVR = (clientId: string, nvrId: string, data: Record<string, unknown>) =>
-  api.put(`/clients/${clientId}/nvrs/${nvrId}`, data).then((r) => r.data);
-export const deleteNVR = (clientId: string, nvrId: string) =>
-  api.delete(`/clients/${clientId}/nvrs/${nvrId}`);
+// ── Equipamentos (novo endpoint genérico) ────────────────────
+export const fetchEquipamentos = (clientId: string) =>
+  api.get(`/clients/${clientId}/equipamentos`).then((r) => r.data);
+export const createEquipamento = (clientId: string, data: Record<string, unknown>) =>
+  api.post(`/clients/${clientId}/equipamentos`, data).then((r) => r.data);
+export const updateEquipamento = (clientId: string, eqId: string, data: Record<string, unknown>) =>
+  api.put(`/clients/${clientId}/equipamentos/${eqId}`, data).then((r) => r.data);
+export const deleteEquipamento = (clientId: string, eqId: string) =>
+  api.delete(`/clients/${clientId}/equipamentos/${eqId}`);
+
+// ── NVRs (mantido como alias para retrocompatibilidade) ───────
+export const fetchNVRs = fetchEquipamentos;
+export const createNVR = createEquipamento;
+export const updateNVR = updateEquipamento;
+export const deleteNVR = deleteEquipamento;
 
 // ── Backups ───────────────────────────────────────────────────
 export const fetchBackups = (params?: Record<string, unknown>) =>

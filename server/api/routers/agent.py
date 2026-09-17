@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from auth import get_current_client
 from database import get_db
 from models import Client, Backup, NVR
-from schemas import AgentConfigResponse, AgentNVR, BackupReportCreate, BackupReportResponse, PingResponse
+from schemas import AgentConfigResponse, AgentEquipamento, BackupReportCreate, BackupReportResponse, PingResponse
 from services.crypto_service import decrypt
 from services.storage_service import save_zip
 from services.email_service import send_backup_report
@@ -21,12 +21,14 @@ router = APIRouter(prefix="/api/v1/agent", tags=["agent"])
 @router.get("/config", response_model=AgentConfigResponse)
 def get_agent_config(client: Client = Depends(get_current_client), db: Session = Depends(get_db)):
     """Return full config needed by the Windows agent."""
-    nvrs = [
-        AgentNVR(
+    equipamentos = [
+        AgentEquipamento(
+            tipo=nvr.tipo or "NVR",
             name=nvr.name,
             ip=nvr.ip,
             username=nvr.username,
             password=decrypt(nvr.password),
+            config_extra=nvr.config_extra,
         )
         for nvr in client.nvrs
     ]
@@ -41,7 +43,8 @@ def get_agent_config(client: Client = Depends(get_current_client), db: Session =
         backup_hour=client.backup_hour,
         backup_minute=client.backup_minute,
         zip_password=zip_pw,
-        nvrs=nvrs,
+        equipamentos=equipamentos,
+        nvrs=equipamentos,  # alias de compatibilidade
     )
 
 

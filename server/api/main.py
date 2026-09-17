@@ -8,7 +8,7 @@ from database import Base, engine, get_db
 from models import Client, Backup
 from schemas import StatsResponse
 from auth import verify_admin_token
-from routers import auth_router, clients, nvrs, backups, agent, settings_router
+from routers import auth_router, clients, nvrs, backups, agent, settings_router, equipamentos
 
 # ─── Create tables on startup ──────────────────────────────────────────────
 Base.metadata.create_all(bind=engine)
@@ -35,13 +35,20 @@ try:
             
         if colunas_nvrs and 'last_recording_status' not in colunas_nvrs:
             conn.execute(text("ALTER TABLE nvrs ADD COLUMN last_recording_status JSON;"))
+
+        # Migrações para suporte a múltiplos tipos de equipamentos
+        if colunas_nvrs and 'tipo' not in colunas_nvrs:
+            conn.execute(text("ALTER TABLE nvrs ADD COLUMN tipo VARCHAR(20) NOT NULL DEFAULT 'NVR';"))
+
+        if colunas_nvrs and 'config_extra' not in colunas_nvrs:
+            conn.execute(text("ALTER TABLE nvrs ADD COLUMN config_extra JSON;"))
 except Exception as e:
     print(f"Erro ao executar migrações de colunas: {e}")
 
 # ─── App ───────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="Trilan NVR Backup API",
-    version="2.0.0",
+    title="Trilan Backup de Equipamentos API",
+    version="3.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
@@ -58,7 +65,8 @@ app.add_middleware(
 # ─── Routers ───────────────────────────────────────────────────────────────
 app.include_router(auth_router.router)
 app.include_router(clients.router)
-app.include_router(nvrs.router)
+app.include_router(equipamentos.router)  # novo router genérico
+app.include_router(nvrs.router)           # mantido para compatibilidade
 app.include_router(backups.router)
 app.include_router(agent.router)
 app.include_router(settings_router.router)
@@ -89,4 +97,4 @@ def get_stats(db: Session = Depends(get_db)):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "Trilan NVR Backup API"}
+    return {"status": "ok", "service": "Trilan Backup de Equipamentos API"}

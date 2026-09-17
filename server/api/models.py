@@ -28,10 +28,12 @@ class Client(Base):
     restart_requested = Column(Boolean, default=False, nullable=False)
 
     nvrs = relationship("NVR", back_populates="client", cascade="all, delete-orphan")
+    equipamentos = relationship("NVR", back_populates="client", cascade="all, delete-orphan", overlaps="nvrs")
     backups = relationship("Backup", back_populates="client")
 
 
 class NVR(Base):
+    """Tabela de equipamentos (NVR, OLT, ONU, PABX). Mantém nome 'nvrs' no BD para compatibilidade."""
     __tablename__ = "nvrs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -40,13 +42,15 @@ class NVR(Base):
         ForeignKey("clients.id", ondelete="CASCADE"),
         nullable=False
     )
+    tipo = Column(String(20), nullable=False, default="NVR")  # NVR, OLT, ONU, PABX
     name = Column(String(255), nullable=False)
     ip = Column(String(50), nullable=False)
     username = Column(String(100), nullable=False)
     password = Column(Text, nullable=False)  # Fernet-encrypted
+    config_extra = Column(JSON, nullable=True)  # configurações específicas de cada tipo
     last_recording_status = Column(JSON, nullable=True)
 
-    client = relationship("Client", back_populates="nvrs")
+    client = relationship("Client", back_populates="nvrs", overlaps="equipamentos")
 
 
 class Backup(Base):

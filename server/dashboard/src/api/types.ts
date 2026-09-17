@@ -1,11 +1,18 @@
+export type TipoEquipamento = "NVR" | "OLT" | "ONU" | "PABX";
+
 export interface NVR {
   id: string;
   client_id: string;
+  tipo: TipoEquipamento;
   name: string;
   ip: string;
   username: string;
+  config_extra?: Record<string, unknown> | null;
   last_recording_status?: any;
 }
+
+// Alias semântico
+export type Equipamento = NVR;
 
 export interface Client {
   id: string;
@@ -26,6 +33,7 @@ export interface Client {
 export interface NVRResult {
   nome: string;
   status: string;
+  tipo?: TipoEquipamento;
 }
 
 export interface Backup {
