@@ -78,7 +78,8 @@ def download_backup_zip(backup_id: UUID, db: Session = Depends(get_db)):
     if not path:
         from pathlib import Path
         from config import settings
-        search_base = Path(settings.BACKUP_STORAGE_PATH) / str(b.client_id)
+        from services.storage_service import _get_client_dir_name
+        search_base = Path(settings.BACKUP_STORAGE_PATH) / _get_client_dir_name(b.client_id, b.client.name)
         logger.error(
             "ZIP nao encontrado em disco. backup_id=%s filename=%s search_base=%s exists=%s",
             backup_id, b.zip_filename, search_base, search_base.exists()

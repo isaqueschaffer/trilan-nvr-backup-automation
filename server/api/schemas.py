@@ -92,6 +92,7 @@ class ClientWithKey(ClientResponse):
 # ─────────────────────────────────────────────
 class NVRResult(BaseModel):
     nome: str
+    tipo: str = "NVR"  # NVR, OLT, ONU, PABX
     status: str  # OK, PARCIAL, ERRO
     cameras: Optional[List[Dict[str, Any]]] = None
 
